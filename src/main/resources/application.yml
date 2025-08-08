@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: configuration
+
+  profiles:
+    active:
+    - ${PROFILE:dev}
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE

@@ -1,4 +1,4 @@
-package co.unicauca.edu.co.contables.configuration.costCenters.exceptions;
+package co.unicauca.edu.co.contables.configuration.commons.exceptions;
 
 /**
  * Excepción base para todas las excepciones de negocio del dominio.
@@ -6,24 +6,24 @@ package co.unicauca.edu.co.contables.configuration.costCenters.exceptions;
  */
 public abstract class BaseBusinessException extends RuntimeException {
     
-    private final ErrorCode errorCode;
+    private final ErrorCodeDefinition errorCode;
     
-    protected BaseBusinessException(ErrorCode errorCode) {
+    protected BaseBusinessException(ErrorCodeDefinition errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
     
-    protected BaseBusinessException(ErrorCode errorCode, String customMessage) {
+    protected BaseBusinessException(ErrorCodeDefinition errorCode, String customMessage) {
         super(customMessage);
         this.errorCode = errorCode;
     }
     
-    protected BaseBusinessException(ErrorCode errorCode, String customMessage, Throwable cause) {
+    protected BaseBusinessException(ErrorCodeDefinition errorCode, String customMessage, Throwable cause) {
         super(customMessage, cause);
         this.errorCode = errorCode;
     }
     
-    public ErrorCode getErrorCode() {
+    public ErrorCodeDefinition getErrorCode() {
         return errorCode;
     }
 }

@@ -7,10 +7,14 @@ import org.hibernate.annotations.TenantId;
 import java.util.List;
 
 @Entity
-@Table(name = "CostCenter", uniqueConstraints = @UniqueConstraint(columnNames = { "code", "idEnterprise" }), indexes = {
-                @Index(name = "idx_cost_center_id_enterprise", columnList = "idEnterprise"),
-                @Index(name = "idx_cost_center_code", columnList = "code")
-})
+@Table(
+    name = "cost_centers",
+    uniqueConstraints = @UniqueConstraint(columnNames = { "code", "id_enterprise" }),
+    indexes = {
+        @Index(name = "idx_cost_center_id_enterprise", columnList = "id_enterprise"),
+        @Index(name = "idx_cost_center_code", columnList = "code")
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,10 +26,10 @@ public class CostCenterEntity {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-        @Column(nullable = false)
-        private String code;
+        @Column(name = "code", nullable = false)
+        private Integer code;
 
-        @Column(nullable = false)
+        @Column(name = "name", nullable = false)
         private String name;
 
         @ManyToOne(fetch = FetchType.LAZY)
@@ -36,9 +40,10 @@ public class CostCenterEntity {
         private List<CostCenterEntity> children;
 
         // Id de empresa obligatorio
-        @Column(nullable = false)
+        @Column(name = "id_enterprise", nullable = false)
         private String idEnterprise;
 
         @TenantId
+        @Column(name = "tenant_id")
         private String tenantId;
 }

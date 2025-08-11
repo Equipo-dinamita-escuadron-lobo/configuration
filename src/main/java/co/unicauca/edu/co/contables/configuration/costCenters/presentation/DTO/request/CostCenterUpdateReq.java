@@ -17,8 +17,8 @@ public class CostCenterUpdateReq {
     @NotBlank
     private String idEnterprise;
 
-    @NotBlank
-    private String code;
+    @NotNull
+    private Integer code;
 
     @NotBlank
     private String name;

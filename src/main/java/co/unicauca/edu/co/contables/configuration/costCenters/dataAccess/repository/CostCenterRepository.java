@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Long> {
 
-    CostCenterEntity findByCodeAndIdEnterprise(String code, String idEnterprise);
+    CostCenterEntity findByCodeAndIdEnterprise(Integer code, String idEnterprise);
 
     List<CostCenterEntity> findAllByIdEnterprise(String idEnterprise);
 

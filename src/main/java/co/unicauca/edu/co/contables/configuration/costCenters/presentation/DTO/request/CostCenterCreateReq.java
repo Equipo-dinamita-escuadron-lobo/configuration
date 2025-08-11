@@ -1,6 +1,7 @@
 package co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -13,8 +14,8 @@ public class CostCenterCreateReq {
     @NotBlank
     private String idEnterprise;
 
-    @NotBlank
-    private String code;
+    @NotNull
+    private Integer code;
 
     @NotBlank
     private String name;

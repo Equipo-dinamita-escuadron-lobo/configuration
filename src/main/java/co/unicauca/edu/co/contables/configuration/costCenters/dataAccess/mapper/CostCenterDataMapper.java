@@ -10,15 +10,15 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring")
 public interface CostCenterDataMapper {
 
-        @Mappings({
-                        @Mapping(target = "parent", ignore = true),
-                        @Mapping(target = "tenantId", ignore = true)
-        })
-        CostCenterEntity toEntity(CostCenter costCenter);
+    @Mappings({
+            @Mapping(target = "parent", ignore = true),
+            @Mapping(target = "tenantId", ignore = true)
+    })
+    CostCenterEntity toEntity(CostCenter costCenter);
 
-        @Mappings({
-                        @Mapping(target = "children", ignore = true),
-                        @Mapping(target = "parent", expression = "java(entity.getParent() != null ? CostCenter.builder().id(entity.getParent().getId()).build() : null)")
-        })
-        CostCenter toDomain(CostCenterEntity entity);
+    @Mappings({
+            @Mapping(target = "children", ignore = true),
+            @Mapping(target = "parent", expression = "java(entity.getParent() != null ? CostCenter.builder().id(entity.getParent().getId()).build() : null)")
+    })
+    CostCenter toDomain(CostCenterEntity entity);
 }

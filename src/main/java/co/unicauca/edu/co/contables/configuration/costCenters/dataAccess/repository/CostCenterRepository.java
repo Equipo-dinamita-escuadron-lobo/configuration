@@ -1,0 +1,20 @@
+package co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.repository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.CostCenterEntity;
+
+import java.util.List;
+
+public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Long> {
+
+    CostCenterEntity findByCodeAndIdEnterprise(String code, String idEnterprise);
+
+    List<CostCenterEntity> findAllByIdEnterprise(String idEnterprise);
+
+    Page<CostCenterEntity> findAllByIdEnterprise(String idEnterprise, Pageable pageable);
+}
+
+

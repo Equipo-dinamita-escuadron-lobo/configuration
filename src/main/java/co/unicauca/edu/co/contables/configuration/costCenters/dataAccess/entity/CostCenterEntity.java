@@ -9,10 +9,14 @@ import java.util.List;
 @Entity
 @Table(
     name = "cost_centers",
-    uniqueConstraints = @UniqueConstraint(columnNames = { "code", "id_enterprise" }),
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "code", "id_enterprise" }),
+        @UniqueConstraint(columnNames = { "name", "id_enterprise" })
+    },
     indexes = {
         @Index(name = "idx_cost_center_id_enterprise", columnList = "id_enterprise"),
-        @Index(name = "idx_cost_center_code", columnList = "code")
+        @Index(name = "idx_cost_center_code", columnList = "code"),
+        @Index(name = "idx_cost_center_name", columnList = "name")
     }
 )
 @Getter

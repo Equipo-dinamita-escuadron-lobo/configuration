@@ -12,6 +12,12 @@ public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Lo
 
     CostCenterEntity findByCodeAndIdEnterprise(Integer code, String idEnterprise);
 
+    boolean existsByCodeAndIdEnterprise(Integer code, String idEnterprise);
+
+    boolean existsByNameAndIdEnterprise(String name, String idEnterprise);
+
+    boolean existsByNameAndIdEnterpriseAndIdNot(String name, String idEnterprise, Long id);
+
     List<CostCenterEntity> findAllByIdEnterprise(String idEnterprise);
 
     Page<CostCenterEntity> findAllByIdEnterprise(String idEnterprise, Pageable pageable);

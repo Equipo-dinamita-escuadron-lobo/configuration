@@ -63,14 +63,14 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		request.setName(standardizedName);
 
 		// Si cambian code o name, validar que no exista otro con esos datos en la misma empresa
-		boolean codeChanged = request.getCode() != null && !request.getCode().equals(current.getCode());
+        boolean codeChanged = request.getCode() != null && !request.getCode().equals(current.getCode());
 		boolean nameChanged = request.getName() != null && !request.getName().equals(current.getName());
 		boolean enterpriseChanged = request.getIdEnterprise() != null && !request.getIdEnterprise().equals(current.getIdEnterprise());
 
 		String targetEnterprise = enterpriseChanged ? request.getIdEnterprise() : current.getIdEnterprise();
 
-		if (codeChanged || enterpriseChanged) {
-			boolean existsCode = repository.existsByCodeAndIdEnterprise(request.getCode(), targetEnterprise);
+        if (codeChanged || enterpriseChanged) {
+            boolean existsCode = repository.existsByCodeAndIdEnterprise(request.getCode(), targetEnterprise);
 			if (existsCode) {
 				throw new CostCentersAlreadyExistsException(request.getCode(), targetEnterprise);
 			}

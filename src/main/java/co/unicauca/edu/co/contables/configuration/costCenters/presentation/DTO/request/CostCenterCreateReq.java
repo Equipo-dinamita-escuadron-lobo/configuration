@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 @Getter
@@ -18,8 +17,7 @@ public class CostCenterCreateReq {
     private String idEnterprise;
 
     @NotNull(message = "El codigo es obligatorio")
-    @Positive(message = "El codigo debe ser un número positivo")
-    private Integer code;
+    private String code;
 
     @NotBlank(message = "El nombre es obligatorio")
     @Pattern(regexp = "^[\\p{L}\\s]+$", message = "El nombre solo puede contener letras")
@@ -27,13 +25,13 @@ public class CostCenterCreateReq {
 
     private Long parentId; // opcional
 
-    @AssertTrue(message = "El codigo debe tener un longitud de 2, 4 o 6 digitos.")
+    @AssertTrue(message = "El codigo debe tener longitud 2 o longitud mayor o igual a 4.")
     public boolean isCodeLengthValid() {
         if (code == null) {
             return false;
         }
-        int length = String.valueOf(Math.abs(code)).length();
-        return length == 2 || length == 4 || length == 6;
+        int length = code.trim().length();
+        return length == 2 || length >= 4;
     }
 }
 

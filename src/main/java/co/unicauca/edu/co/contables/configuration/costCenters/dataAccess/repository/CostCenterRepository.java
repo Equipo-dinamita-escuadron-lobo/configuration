@@ -10,9 +10,9 @@ import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.
 
 public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Long> {
 
-    CostCenterEntity findByCodeAndIdEnterprise(Integer code, String idEnterprise);
+    CostCenterEntity findByCodeAndIdEnterprise(String code, String idEnterprise);
 
-    boolean existsByCodeAndIdEnterprise(Integer code, String idEnterprise);
+    boolean existsByCodeAndIdEnterprise(String code, String idEnterprise);
 
     boolean existsByNameAndIdEnterprise(String name, String idEnterprise);
 

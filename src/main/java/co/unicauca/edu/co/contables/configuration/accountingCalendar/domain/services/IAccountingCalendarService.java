@@ -22,8 +22,6 @@ public interface IAccountingCalendarService {
 
     void changeStateRange(AccountingCalendarRangeStateReq request);
 
-    void changeStateDate(AccountingCalendarDateStateReq request);
-
 	void delete(Long id, String idEnterprise);
 }
 

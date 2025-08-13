@@ -38,15 +38,7 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));
     }
 
-    @GetMapping("/findAll/{enterpriseId}")
-    public ResponseEntity<Page<AccountingCalendarRes>> list(
-            @PathVariable String enterpriseId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<AccountingCalendar> result = service.findAllByEnterprise(enterpriseId, page, size);
-        return ResponseEntity.ok(result.map(mapper::toRes));
-    }
-
+    
     @GetMapping("/findByRange/{enterpriseId}")
     public ResponseEntity<Page<AccountingCalendarRes>> findByRange(
             @PathVariable String enterpriseId,
@@ -68,8 +60,8 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(result.map(mapper::toRes));
     }
 
-    @PostMapping("/changeState/all")
-    public ResponseEntity<Void> changeStateAll(@RequestParam String enterpriseId, @RequestParam Boolean status) {
+    @PostMapping("/changeState/all/{enterpriseId}")
+    public ResponseEntity<Void> changeStateAll(@PathVariable String enterpriseId, @RequestParam Boolean status) {
         service.changeStateAll(enterpriseId, status);
         return ResponseEntity.noContent().build();
     }
@@ -80,11 +72,7 @@ public class AccountingCalendarController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/changeState/date")
-    public ResponseEntity<Void> changeStateDate(@Valid @RequestBody AccountingCalendarDateStateReq req) {
-        service.changeStateDate(req);
-        return ResponseEntity.noContent().build();
-    }
+    
 
     @DeleteMapping("/delete/{id}/{enterpriseId}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {

@@ -155,28 +155,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 		} while (result.hasNext());
 	}
 
-	@Transactional
-	public void changeStateDate(AccountingCalendarDateStateReq request) {
-		int page = 0;
-		Page<AccountingCalendarEntity> result;
-		do {
-			result = repository.findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
-					request.getIdEnterprise(), request.getDate(), request.getDate(), PageRequest.of(page, 500));
-			List<AccountingCalendarEntity> toUpdate = new ArrayList<>();
-			for (AccountingCalendarEntity entity : result.getContent()) {
-				if (entity.isStatus() != request.getStatus()) {
-					entity.setStatus(request.getStatus());
-					toUpdate.add(entity);
-				}
-			}
-			if (!toUpdate.isEmpty()) {
-				repository.saveAll(toUpdate);
-				entityManager.flush();
-				entityManager.clear();
-			}
-			page++;
-		} while (result.hasNext());
-	}
+    
 
     @Transactional
     public void delete(Long id, String idEnterprise) {

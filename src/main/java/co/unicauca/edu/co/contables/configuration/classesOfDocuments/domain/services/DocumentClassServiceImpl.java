@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class DocumentClassService {
+public class DocumentClassServiceImpl implements IDocumentClassService {
 
     private final DocumentClassRepository repository;
     private final DocumentClassDataMapper dataMapper;

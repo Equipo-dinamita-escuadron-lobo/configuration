@@ -1,7 +1,7 @@
 package co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.controller;
 
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.models.DocumentClass;
-import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.services.DocumentClassService;
+import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.services.IDocumentClassService;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.mapper.DocumentClassDomainMapper;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.DTO.request.DocumentClassCreateReq;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.DTO.request.DocumentClassUpdateReq;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DocumentClassController {
 
-    private final DocumentClassService service;
+    private final IDocumentClassService service;
     private final DocumentClassDomainMapper mapper;
 
     @PostMapping("/create")

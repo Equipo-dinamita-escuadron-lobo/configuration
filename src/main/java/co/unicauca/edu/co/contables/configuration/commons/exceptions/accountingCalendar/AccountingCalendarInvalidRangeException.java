@@ -1,15 +1,13 @@
 package co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar;
 
-public class AccountingCalendarInvalidRangeException extends RuntimeException {
-    private final AccountingCalendarErrorCode code = AccountingCalendarErrorCode.INVALID_RANGE;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.BaseBusinessException;
+
+public class AccountingCalendarInvalidRangeException extends BaseBusinessException {
 
     public AccountingCalendarInvalidRangeException() {
-        super("La fecha de inicio no puede ser mayor que la fecha de fin");
-    }
-
-    public AccountingCalendarErrorCode getCode() {
-        return code;
+        super(AccountingCalendarErrorCode.INVALID_RANGE);
     }
 }
 
 
+ 

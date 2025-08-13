@@ -1,15 +1,13 @@
 package co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar;
 
-public class AccountingCalendarOverlapException extends RuntimeException {
-    private final AccountingCalendarErrorCode code = AccountingCalendarErrorCode.OVERLAPPING_PERIODS;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.BaseBusinessException;
+
+public class AccountingCalendarOverlapException extends BaseBusinessException {
 
     public AccountingCalendarOverlapException() {
-        super("El rango de fechas se solapa con periodos existentes");
-    }
-
-    public AccountingCalendarErrorCode getCode() {
-        return code;
+        super(AccountingCalendarErrorCode.OVERLAPPING_PERIODS);
     }
 }
 
 
+ 

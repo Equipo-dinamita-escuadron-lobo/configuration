@@ -1,15 +1,13 @@
 package co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar;
 
-public class AccountingCalendarNotFoundException extends RuntimeException {
-    private final AccountingCalendarErrorCode code = AccountingCalendarErrorCode.NOT_FOUND;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.BaseBusinessException;
+
+public class AccountingCalendarNotFoundException extends BaseBusinessException {
 
     public AccountingCalendarNotFoundException() {
-        super("Calendario contable no encontrado");
-    }
-
-    public AccountingCalendarErrorCode getCode() {
-        return code;
+        super(AccountingCalendarErrorCode.NOT_FOUND);
     }
 }
 
 
+ 

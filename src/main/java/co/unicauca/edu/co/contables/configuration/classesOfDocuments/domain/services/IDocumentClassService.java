@@ -12,9 +12,9 @@ public interface IDocumentClassService {
 
 	DocumentClass update(DocumentClassUpdateReq request);
 
-	DocumentClass findById(Long id);
+	DocumentClass findById(Long id, String idEnterprise);
 
 	Page<DocumentClass> findAllByEnterprise(String idEnterprise, int page, int size);
 
-	void delete(Long id);
+	void delete(Long id, String idEnterprise);
 }

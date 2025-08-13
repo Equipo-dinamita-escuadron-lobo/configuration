@@ -66,8 +66,8 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
     }
 
     @Transactional(readOnly = true)
-    public DocumentClass findById(Long id) {
-        return dataMapper.toDomain(repository.findById(id)
+    public DocumentClass findById(Long id, String idEnterprise) {
+        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)
                 .orElseThrow(DocumentClassesNotFoundException::new));
     }
 
@@ -78,8 +78,8 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        DocumentClassEntity entity = repository.findById(id).orElseThrow(DocumentClassesNotFoundException::new);
+    public void delete(Long id, String idEnterprise) {
+        DocumentClassEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentClassesNotFoundException::new);
         repository.delete(entity);
     }
 

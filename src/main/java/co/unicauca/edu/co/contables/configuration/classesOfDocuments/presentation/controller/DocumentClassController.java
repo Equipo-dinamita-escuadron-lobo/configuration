@@ -32,9 +32,9 @@ public class DocumentClassController {
         return ResponseEntity.ok(mapper.toRes(updated));
     }
 
-    @GetMapping("/findById/{id}")
-    public ResponseEntity<DocumentClassRes> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(mapper.toRes(service.findById(id)));
+    @GetMapping("/findById/{id}/{enterpriseId}")
+    public ResponseEntity<DocumentClassRes> getById(@PathVariable Long id, @PathVariable String enterpriseId) {
+        return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));
     }
 
     @GetMapping("/findAll/{enterpriseId}")
@@ -46,9 +46,9 @@ public class DocumentClassController {
                 .map(mapper::toRes));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    @DeleteMapping("/delete/{id}/{enterpriseId}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
+        service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
     }
 }

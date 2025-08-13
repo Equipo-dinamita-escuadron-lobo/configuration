@@ -1,6 +1,7 @@
 package co.unicauca.edu.co.contables.configuration.costCenters.presentation.controller;
 
 import co.unicauca.edu.co.contables.configuration.costCenters.domain.models.CostCenter;
+import co.unicauca.edu.co.contables.configuration.costCenters.domain.mapper.CostCenterDomainMapper;
 import co.unicauca.edu.co.contables.configuration.costCenters.domain.services.ICostCenterService;
 import co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.request.CostCenterCreateReq;
 import co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.request.CostCenterUpdateReq;
@@ -19,22 +20,23 @@ import org.springframework.web.bind.annotation.*;
 public class CostCenterController {
 
     private final ICostCenterService service;
+    private final CostCenterDomainMapper mapper;
 
     @PostMapping("/create")
     public ResponseEntity<CostCenterRes> create(@Valid @RequestBody CostCenterCreateReq request) {
         CostCenter created = service.create(request);
-        return ResponseEntity.ok(toRes(created));
+        return ResponseEntity.ok(mapper.toRes(created));
     }
 
     @PutMapping("/update")
     public ResponseEntity<CostCenterRes> update(@Valid @RequestBody CostCenterUpdateReq request) {
         CostCenter updated = service.update(request);
-        return ResponseEntity.ok(toRes(updated));
+        return ResponseEntity.ok(mapper.toRes(updated));
     }
 
     @GetMapping("/findById/{id}")
     public ResponseEntity<CostCenterRes> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(toRes(service.findById(id)));
+        return ResponseEntity.ok(mapper.toRes(service.findById(id)));
     }
 
     @GetMapping("/findAll/{enterpriseId}")
@@ -43,7 +45,7 @@ public class CostCenterController {
             @RequestParam(defaultValue = "0") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         Page<CostCenter> pageResult = service.findAllByEnterprise(enterpriseId, page, size);
-        Page<CostCenterRes> mapped = pageResult.map(this::toRes);
+        Page<CostCenterRes> mapped = pageResult.map(mapper::toRes);
         return ResponseEntity.ok(mapped);
     }
 
@@ -53,15 +55,7 @@ public class CostCenterController {
         return ResponseEntity.noContent().build();
     }
 
-    private CostCenterRes toRes(CostCenter domain) {
-        return CostCenterRes.builder()
-                .id(domain.getId())
-                .idEnterprise(domain.getIdEnterprise())
-                .code(domain.getCode())
-                .name(domain.getName())
-                .parentId(domain.getParent() != null ? domain.getParent().getId() : null)
-                .build();
-    }
+    
 }
 
 

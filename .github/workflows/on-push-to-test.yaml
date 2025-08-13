@@ -1,0 +1,15 @@
+name: "Promotes dev environment tag to test environment"
+on:
+  push:
+    branches:
+      - test
+jobs:
+
+
+  docker:
+    uses:
+      Equipo-dinamita-escuadron-lobo/workflows/.github/workflows/backend-on-push-to-test.yaml@main
+    with:
+      repository-name: contapp-ang-19
+    secrets:
+      PAT: ${{ secrets.PAT }}

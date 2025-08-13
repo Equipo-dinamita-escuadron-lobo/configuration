@@ -1,7 +1,7 @@
 package co.unicauca.edu.co.contables.configuration.costCenters.presentation.controller;
 
 import co.unicauca.edu.co.contables.configuration.costCenters.domain.models.CostCenter;
-import co.unicauca.edu.co.contables.configuration.costCenters.domain.services.CostCenterService;
+import co.unicauca.edu.co.contables.configuration.costCenters.domain.services.ICostCenterService;
 import co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.request.CostCenterCreateReq;
 import co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.request.CostCenterUpdateReq;
 import co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.response.CostCenterRes;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CostCenterController {
 
-    private final CostCenterService service;
+    private final ICostCenterService service;
 
     @PostMapping("/create")
     public ResponseEntity<CostCenterRes> create(@Valid @RequestBody CostCenterCreateReq request) {

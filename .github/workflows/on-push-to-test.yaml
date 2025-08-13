@@ -10,6 +10,6 @@ jobs:
     uses:
       Equipo-dinamita-escuadron-lobo/workflows/.github/workflows/backend-on-push-to-test.yaml@main
     with:
-      repository-name: contapp-ang-19
+      repository-name: ${{ github.event.repository.name }}
     secrets:
       PAT: ${{ secrets.PAT }}

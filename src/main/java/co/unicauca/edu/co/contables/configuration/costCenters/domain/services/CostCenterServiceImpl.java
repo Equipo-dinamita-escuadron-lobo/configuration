@@ -44,7 +44,9 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		CostCenter costCenter = domainMapper.toDomain(request);
 		CostCenterEntity entity = dataMapper.toEntity(costCenter);
 		if (request.getParentId() != null) {
-			entity.setParent(repository.findById(request.getParentId()).orElse(null));
+			CostCenterEntity parent = repository.findByIdAndIdEnterprise(request.getParentId(), request.getIdEnterprise())
+					.orElseThrow(CostCentersNotFoundException::new);
+			entity.setParent(parent);
 		}
 
 		CostCenterEntity saved = repository.save(entity);
@@ -84,7 +86,9 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		current.setCode(request.getCode());
 		current.setName(request.getName());
 		if (request.getParentId() != null) {
-			current.setParent(repository.findById(request.getParentId()).orElse(null));
+			CostCenterEntity parent = repository.findByIdAndIdEnterprise(request.getParentId(), targetEnterprise)
+					.orElseThrow(CostCentersNotFoundException::new);
+			current.setParent(parent);
 		} else {
 			current.setParent(null);
 		}
@@ -100,14 +104,15 @@ public class CostCenterServiceImpl implements ICostCenterService {
 	}
 
     @Transactional(readOnly = true)
-    public CostCenter findById(Long id) {
-		return dataMapper.toDomain(repository.findById(id)
+    public CostCenter findById(Long id, String idEnterprise) {
+		return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)
 				.orElseThrow(CostCentersNotFoundException::new));
 	}
 
 	@Transactional
-	public void delete(Long id) {
-		CostCenterEntity entity = repository.findById(id).orElseThrow(CostCentersNotFoundException::new);
+	public void delete(Long id, String idEnterprise) {
+		CostCenterEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise)
+				.orElseThrow(CostCentersNotFoundException::new);
 		repository.delete(entity);
 	}
 

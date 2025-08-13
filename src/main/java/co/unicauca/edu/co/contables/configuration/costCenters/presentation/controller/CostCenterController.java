@@ -15,46 +15,46 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/configuration/cost-centers")
+@RequestMapping("/api/config/cost-centers")
 @RequiredArgsConstructor
 public class CostCenterController {
 
     private final CostCenterService service;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<CostCenterRes> create(@Valid @RequestBody CostCenterCreateReq request) {
         CostCenter created = service.create(request);
         return ResponseEntity.ok(toRes(created));
     }
 
-    @PutMapping
+    @PutMapping("/update")
     public ResponseEntity<CostCenterRes> update(@Valid @RequestBody CostCenterUpdateReq request) {
         CostCenter updated = service.update(request);
         return ResponseEntity.ok(toRes(updated));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/findById/{id}")
     public ResponseEntity<CostCenterRes> getById(@PathVariable Long id) {
         return ResponseEntity.ok(toRes(service.findById(id)));
     }
 
-    @GetMapping
+    @GetMapping("/findAll/{enterpriseId}")
     public ResponseEntity<?> list(
-            @RequestParam String idEnterprise,
+            @PathVariable String enterpriseId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         if (page != null && size != null) {
-            Page<CostCenter> pageResult = service.findAllByEnterprise(idEnterprise, page, size);
+            Page<CostCenter> pageResult = service.findAllByEnterprise(enterpriseId, page, size);
             Page<CostCenterRes> mapped = pageResult.map(this::toRes);
             return ResponseEntity.ok(mapped);
         }
-        List<CostCenterRes> list = service.findAllByEnterprise(idEnterprise).stream()
+        List<CostCenterRes> list = service.findAllByEnterprise(enterpriseId).stream()
                 .map(this::toRes)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();

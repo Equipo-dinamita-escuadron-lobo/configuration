@@ -1,5 +1,6 @@
 package co.unicauca.edu.co.contables.configuration.costCenters.domain.services;
 
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCentersAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCentersNotFoundException;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.CostCenterEntity;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.mapper.CostCenterDataMapper;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,19 @@ public class CostCenterService {
 
     @Transactional
     public CostCenter create(CostCenterCreateReq request) {
+        // Validación de unicidad por código y nombre dentro de la empresa
+        if (repository.existsByCodeAndIdEnterprise(request.getCode(), request.getIdEnterprise())) {
+            throw new CostCentersAlreadyExistsException(request.getCode(), request.getIdEnterprise());
+        }
+        // Estandarizar nombre: primera letra mayúscula, resto minúsculas, colapsar espacios
+        String standardizedName = standardizeName(request.getName());
+        request.setName(standardizedName);
+
+        // Validación de nombre exacto (tras estandarización)
+        if (repository.existsByNameAndIdEnterprise(standardizedName, request.getIdEnterprise())) {
+            throw new CostCentersAlreadyExistsException(request.getName(), request.getIdEnterprise());
+        }
+
         CostCenter costCenter = domainMapper.toDomain(request);
         CostCenterEntity entity = dataMapper.toEntity(costCenter);
         if (request.getParentId() != null) {
@@ -42,6 +57,30 @@ public class CostCenterService {
     public CostCenter update(CostCenterUpdateReq request) {
         CostCenterEntity current = repository.findById(request.getId())
                 .orElseThrow(CostCentersNotFoundException::new);
+
+        // Estandarizar nombre antes de validar
+        String standardizedName = standardizeName(request.getName());
+        request.setName(standardizedName);
+
+        // Si cambian code o name, validar que no exista otro con esos datos en la misma empresa
+        boolean codeChanged = request.getCode() != null && !request.getCode().equals(current.getCode());
+        boolean nameChanged = request.getName() != null && !request.getName().equals(current.getName());
+        boolean enterpriseChanged = request.getIdEnterprise() != null && !request.getIdEnterprise().equals(current.getIdEnterprise());
+
+        String targetEnterprise = enterpriseChanged ? request.getIdEnterprise() : current.getIdEnterprise();
+
+        if (codeChanged || enterpriseChanged) {
+            boolean existsCode = repository.existsByCodeAndIdEnterprise(request.getCode(), targetEnterprise);
+            if (existsCode) {
+                throw new CostCentersAlreadyExistsException(request.getCode(), targetEnterprise);
+            }
+        }
+        if (nameChanged || enterpriseChanged) {
+            boolean existsName = repository.existsByNameAndIdEnterpriseAndIdNot(request.getName(), targetEnterprise, current.getId());
+            if (existsName) {
+                throw new CostCentersAlreadyExistsException(request.getName(), targetEnterprise);
+            }
+        }
 
         current.setIdEnterprise(request.getIdEnterprise());
         current.setCode(request.getCode());
@@ -76,6 +115,13 @@ public class CostCenterService {
     public void delete(Long id) {
         CostCenterEntity entity = repository.findById(id).orElseThrow(CostCentersNotFoundException::new);
         repository.delete(entity);
+    }
+
+    private String standardizeName(String input) {
+        if (input == null) return null;
+        String s = input.trim().replaceAll("\\s+", " ").toLowerCase(new Locale("es", "ES"));
+        if (s.isEmpty()) return s;
+        return s.substring(0, 1).toUpperCase(new Locale("es", "ES")) + s.substring(1);
     }
 }
 

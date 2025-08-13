@@ -12,7 +12,7 @@ import java.util.List;
 public class CostCenter {
     private Long id;
     private String idEnterprise;
-    private String code;
+    private Integer code;
     private String name;
     private CostCenter parent;
     private List<CostCenter> children;

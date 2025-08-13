@@ -26,11 +26,7 @@ public class AccountingCalendarEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String idEnterprise;
-
-    @TenantId
-    @Column(name = "tenant_id")
-    private String tenantId;
+    private String idEnterprise;    
 
     @Column(nullable = false)
     private LocalDate startDate;
@@ -40,6 +36,10 @@ public class AccountingCalendarEntity {
 
     @Column(nullable = false)
     private boolean status; // true: OPEN, false: CLOSED
+
+    @TenantId
+    @Column(name = "tenant_id")
+    private String tenantId;
 }
 
 

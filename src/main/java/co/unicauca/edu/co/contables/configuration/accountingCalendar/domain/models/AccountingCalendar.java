@@ -11,11 +11,11 @@ import java.time.LocalDate;
 @Builder
 public class AccountingCalendar {
     private Long id;
-    private String idEnterprise;
-    private String tenantId;
+    private String idEnterprise;    
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean status;
+    private String tenantId;
 }
 
 

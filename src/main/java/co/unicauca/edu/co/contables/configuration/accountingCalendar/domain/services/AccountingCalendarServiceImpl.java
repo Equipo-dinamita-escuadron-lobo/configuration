@@ -84,11 +84,11 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 		return dataMapper.toDomain(repository.save(current));
 	}
 
-	@Transactional(readOnly = true)
-	public AccountingCalendar findById(Long id) {
-        return dataMapper.toDomain(repository.findById(id)
+    @Transactional(readOnly = true)
+    public AccountingCalendar findById(Long id, String idEnterprise) {
+        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)
                 .orElseThrow(AccountingCalendarNotFoundException::new));
-	}
+    }
 
 	@Transactional(readOnly = true)
 	public Page<AccountingCalendar> findAllByEnterprise(String idEnterprise, int page, int size) {
@@ -102,6 +102,12 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
                 idEnterprise, startDate, endDate, pageable).map(dataMapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AccountingCalendar> findByYear(String idEnterprise, int year, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAllByEnterpriseAndYear(idEnterprise, year, pageable).map(dataMapper::toDomain);
     }
 
 	@Transactional
@@ -172,10 +178,12 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 		} while (result.hasNext());
 	}
 
-	@Transactional
-	public void delete(Long id) {
-		repository.deleteById(id);
-	}
+    @Transactional
+    public void delete(Long id, String idEnterprise) {
+        AccountingCalendarEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise)
+                .orElseThrow(AccountingCalendarNotFoundException::new);
+        repository.delete(entity);
+    }
 }
 
 

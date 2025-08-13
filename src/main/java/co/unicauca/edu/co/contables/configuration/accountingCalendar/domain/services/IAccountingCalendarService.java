@@ -10,11 +10,13 @@ public interface IAccountingCalendarService {
 
 	AccountingCalendar update(AccountingCalendarUpdateReq request);
 
-	AccountingCalendar findById(Long id);
+	AccountingCalendar findById(Long id, String idEnterprise);
 
     Page<AccountingCalendar> findAllByEnterprise(String idEnterprise, int page, int size);
 
     Page<AccountingCalendar> findByRange(String idEnterprise, java.time.LocalDate startDate, java.time.LocalDate endDate, int page, int size);
+
+	Page<AccountingCalendar> findByYear(String idEnterprise, int year, int page, int size);
 
     void changeStateAll(String idEnterprise, Boolean status);
 
@@ -22,7 +24,7 @@ public interface IAccountingCalendarService {
 
     void changeStateDate(AccountingCalendarDateStateReq request);
 
-	void delete(Long id);
+	void delete(Long id, String idEnterprise);
 }
 
 

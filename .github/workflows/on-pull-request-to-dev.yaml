@@ -3,6 +3,13 @@ on:
   pull_request:
     branches:
       - develop
+    paths:
+      - '**.java'
+      - 'pom.xml'
+      - 'Dockerfile'
+      - 'src/**'
+      - 'mvnw'
+      - '.mvn/**'
 
 jobs:
   docker:

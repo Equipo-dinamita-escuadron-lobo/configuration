@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - develop
+    paths:
+      - '**.java'
+      - 'pom.xml'
+      - 'Dockerfile'
+      - 'src/**'
+      - 'mvnw'
+      - '.mvn/**'
 jobs:
 
 

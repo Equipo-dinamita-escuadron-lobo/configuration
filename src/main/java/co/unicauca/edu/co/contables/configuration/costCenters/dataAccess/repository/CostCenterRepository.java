@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.CostCenterEntity;
 
-import java.util.List;
 
 public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Long> {
 
@@ -17,8 +16,6 @@ public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Lo
     boolean existsByNameAndIdEnterprise(String name, String idEnterprise);
 
     boolean existsByNameAndIdEnterpriseAndIdNot(String name, String idEnterprise, Long id);
-
-    List<CostCenterEntity> findAllByIdEnterprise(String idEnterprise);
 
     Page<CostCenterEntity> findAllByIdEnterprise(String idEnterprise, Pageable pageable);
 }

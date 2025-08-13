@@ -16,8 +16,6 @@ import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.Locale;
 
 @Service
@@ -92,12 +90,6 @@ public class CostCenterService {
         }
 
         return dataMapper.toDomain(repository.save(current));
-    }
-
-    public List<CostCenter> findAllByEnterprise(String idEnterprise) {
-        return repository.findAllByIdEnterprise(idEnterprise).stream()
-                .map(dataMapper::toDomain)
-                .collect(Collectors.toList());
     }
 
     public Page<CostCenter> findAllByEnterprise(String idEnterprise, int page, int size) {

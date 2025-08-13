@@ -11,8 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
+ 
 
 @RestController
 @RequestMapping("/api/config/cost-centers")
@@ -39,19 +38,13 @@ public class CostCenterController {
     }
 
     @GetMapping("/findAll/{enterpriseId}")
-    public ResponseEntity<?> list(
+    public ResponseEntity<Page<CostCenterRes>> list(
             @PathVariable String enterpriseId,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        if (page != null && size != null) {
-            Page<CostCenter> pageResult = service.findAllByEnterprise(enterpriseId, page, size);
-            Page<CostCenterRes> mapped = pageResult.map(this::toRes);
-            return ResponseEntity.ok(mapped);
-        }
-        List<CostCenterRes> list = service.findAllByEnterprise(enterpriseId).stream()
-                .map(this::toRes)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        Page<CostCenter> pageResult = service.findAllByEnterprise(enterpriseId, page, size);
+        Page<CostCenterRes> mapped = pageResult.map(this::toRes);
+        return ResponseEntity.ok(mapped);
     }
 
     @DeleteMapping("/delete/{id}")

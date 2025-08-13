@@ -26,7 +26,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class DocumentTypeService {
+public class DocumentTypeServiceImpl implements IDocumentTypeService {
 
     private static final Set<String> ALLOWED_MODULES = new HashSet<>(Arrays.asList(
             "Inventario promedio ponderado",

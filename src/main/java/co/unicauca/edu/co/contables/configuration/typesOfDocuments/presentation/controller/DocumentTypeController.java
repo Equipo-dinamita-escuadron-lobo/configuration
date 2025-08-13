@@ -1,7 +1,7 @@
 package co.unicauca.edu.co.contables.configuration.typesOfDocuments.presentation.controller;
 
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.models.DocumentType;
-import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.services.DocumentTypeService;
+import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.services.IDocumentTypeService;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.mapper.DocumentTypeDomainMapper;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.presentation.DTO.request.DocumentTypeCreateReq;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.presentation.DTO.request.DocumentTypeUpdateReq;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DocumentTypeController {
 
-    private final DocumentTypeService service;
+    private final IDocumentTypeService service;
     private final DocumentTypeDomainMapper mapper;
 
     @PostMapping("/create")

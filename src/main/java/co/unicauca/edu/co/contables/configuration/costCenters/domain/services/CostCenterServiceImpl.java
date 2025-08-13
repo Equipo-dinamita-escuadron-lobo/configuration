@@ -38,7 +38,7 @@ public class CostCenterServiceImpl implements ICostCenterService {
 
 		// Validación de nombre exacto (tras estandarización)
 		if (repository.existsByNameAndIdEnterprise(standardizedName, request.getIdEnterprise())) {
-			throw new CostCentersAlreadyExistsException(request.getName(), request.getIdEnterprise());
+			throw new CostCentersAlreadyExistsException(request.getName(), request.getIdEnterprise(), true);
 		}
 
 		CostCenter costCenter = domainMapper.toDomain(request);
@@ -78,7 +78,7 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		if (nameChanged || enterpriseChanged) {
 			boolean existsName = repository.existsByNameAndIdEnterpriseAndIdNot(request.getName(), targetEnterprise, current.getId());
 			if (existsName) {
-				throw new CostCentersAlreadyExistsException(request.getName(), targetEnterprise);
+				throw new CostCentersAlreadyExistsException(request.getName(), targetEnterprise, true);
 			}
 		}
 

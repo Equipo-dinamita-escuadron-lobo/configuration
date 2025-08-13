@@ -65,11 +65,13 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
         return dataMapper.toDomain(saved);
     }
 
+    @Transactional(readOnly = true)
     public DocumentClass findById(Long id) {
         return dataMapper.toDomain(repository.findById(id)
                 .orElseThrow(DocumentClassesNotFoundException::new));
     }
 
+    @Transactional(readOnly = true)
     public Page<DocumentClass> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);

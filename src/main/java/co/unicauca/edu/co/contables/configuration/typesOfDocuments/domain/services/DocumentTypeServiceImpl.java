@@ -121,10 +121,12 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         return dataMapper.toDomain(saved);
     }
 
+    @Transactional(readOnly = true)
     public DocumentType findById(Long id) {
         return dataMapper.toDomain(repository.findById(id).orElseThrow(DocumentTypesNotFoundException::new));
     }
 
+    @Transactional(readOnly = true)
     public Page<DocumentType> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);

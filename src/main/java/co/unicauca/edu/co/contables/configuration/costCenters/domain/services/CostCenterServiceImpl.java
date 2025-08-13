@@ -9,7 +9,7 @@ import co.unicauca.edu.co.contables.configuration.costCenters.domain.mapper.Cost
 import co.unicauca.edu.co.contables.configuration.costCenters.domain.models.CostCenter;
 import co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.request.CostCenterCreateReq;
 import co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.request.CostCenterUpdateReq;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -92,13 +92,15 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		return dataMapper.toDomain(repository.save(current));
 	}
 
-	public Page<CostCenter> findAllByEnterprise(String idEnterprise, int page, int size) {
+    @Transactional(readOnly = true)
+    public Page<CostCenter> findAllByEnterprise(String idEnterprise, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 		return repository.findAllByIdEnterprise(idEnterprise, pageable)
 				.map(dataMapper::toDomain);
 	}
 
-	public CostCenter findById(Long id) {
+    @Transactional(readOnly = true)
+    public CostCenter findById(Long id) {
 		return dataMapper.toDomain(repository.findById(id)
 				.orElseThrow(CostCentersNotFoundException::new));
 	}

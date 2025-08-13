@@ -122,8 +122,8 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
     }
 
     @Transactional(readOnly = true)
-    public DocumentType findById(Long id) {
-        return dataMapper.toDomain(repository.findById(id).orElseThrow(DocumentTypesNotFoundException::new));
+    public DocumentType findById(Long id, String idEnterprise) {
+        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentTypesNotFoundException::new));
     }
 
     @Transactional(readOnly = true)
@@ -133,8 +133,8 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        DocumentTypeEntity entity = repository.findById(id).orElseThrow(DocumentTypesNotFoundException::new);
+    public void delete(Long id, String idEnterprise) {
+        DocumentTypeEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentTypesNotFoundException::new);
         repository.delete(entity);
     }
 

@@ -2,7 +2,6 @@ package co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentati
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,6 @@ public class DocumentClassUpdateReq {
     private String idEnterprise;
 
     @NotBlank(message = "El nombre es obligatorio")
-    @Pattern(regexp = "^[\\p{L}\\s]+$", message = "El nombre solo puede contener letras")
     private String name;
 }
 

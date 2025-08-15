@@ -45,11 +45,19 @@ public class DocumentTypeController {
                 .map(mapper::toRes));
     }
 
+    @GetMapping("/findAllByModule/{enterpriseId}")
+    public ResponseEntity<?> listByModule(
+            @PathVariable("enterpriseId") String enterpriseId,
+            @RequestParam String module,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return ResponseEntity.ok(service.findAllByModuleAndEnterprise(module, enterpriseId, page, size)
+                .map(mapper::toRes));
+    }
+
     @DeleteMapping("/delete/{id}/{enterpriseId}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
         service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
     }
 }
-
-

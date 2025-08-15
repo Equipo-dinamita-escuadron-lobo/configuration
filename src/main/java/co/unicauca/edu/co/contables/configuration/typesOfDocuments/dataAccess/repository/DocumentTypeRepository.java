@@ -14,6 +14,8 @@ public interface DocumentTypeRepository extends JpaRepository<DocumentTypeEntity
     Page<DocumentTypeEntity> findAllByIdEnterprise(String idEnterprise, Pageable pageable);
 
     Optional<DocumentTypeEntity> findByIdAndIdEnterprise(Long id, String idEnterprise);
+    
+    Page<DocumentTypeEntity> findAllByModuleAndIdEnterprise(String module, String idEnterprise, Pageable pageable);
 }
 
 

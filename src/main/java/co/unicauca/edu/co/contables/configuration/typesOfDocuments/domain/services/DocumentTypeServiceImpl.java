@@ -36,7 +36,6 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
             "Cartera",
             "Contable comercial",
             "Contable cartera",
-            "Libros Auxiliares",
             "Estados financieros"
     ));
 
@@ -47,9 +46,9 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
 
     @Transactional
     public DocumentType create(DocumentTypeCreateReq request) {
-        // Validación de módulo permitido
-        if (!ALLOWED_MODULES.contains(request.getModule())) {
-            throw new IllegalArgumentException("Módulo inválido");
+        // Validación de módulo permitido (insensible a mayúsculas/minúsculas)
+        if (!isModuleAllowed(request.getModule())) {
+            throw new IllegalArgumentException("Modulo invalido");
         }
 
         // Estandarización de nombre y prefijo
@@ -71,6 +70,7 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         DocumentType domain = domainMapper.toDomain(request);
         domain.setName(standardizedName);
         domain.setPrefix(standardizedPrefix);
+        domain.setModule(standardizeName(request.getModule()));
         DocumentTypeEntity toSave = dataMapper.toEntity(domain);
         toSave.setDocumentClass(docClass);
 
@@ -80,8 +80,8 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
 
     @Transactional
     public DocumentType update(DocumentTypeUpdateReq request) {
-        // Validación de módulo permitido
-        if (!ALLOWED_MODULES.contains(request.getModule())) {
+        // Validación de módulo permitido (insensible a mayúsculas/minúsculas)
+        if (!isModuleAllowed(request.getModule())) {
             throw new IllegalArgumentException("Módulo inválido");
         }
 
@@ -115,7 +115,7 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         current.setPrefix(standardizedPrefix);
         current.setName(standardizedName);
         current.setDocumentClass(docClass);
-        current.setModule(request.getModule());
+        current.setModule(standardizeName(request.getModule()));
 
         DocumentTypeEntity saved = repository.save(current);
         return dataMapper.toDomain(saved);
@@ -130,6 +130,21 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
     public Page<DocumentType> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DocumentType> findAllByModuleAndEnterprise(String module, String idEnterprise, int page, int size) {
+        // Validar que el módulo esté permitido
+        if (!isModuleAllowed(module)) {
+            throw new IllegalArgumentException("Modulo invalido: " + module);
+        }
+        
+        // Estandarizar el módulo para la búsqueda
+        String standardizedModule = standardizeName(module);
+        
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAllByModuleAndIdEnterprise(standardizedModule, idEnterprise, pageable)
+                .map(dataMapper::toDomain);
     }
 
     @Transactional
@@ -149,6 +164,20 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         if (input == null) return null;
         return input.trim().toUpperCase(Locale.ROOT);
     }
+
+    /**
+     * Valida si un módulo está permitido, sin distinguir entre mayúsculas y minúsculas
+     * @param module el módulo a validar
+     * @return true si el módulo está permitido, false en caso contrario
+     */
+    private boolean isModuleAllowed(String module) {
+        if (module == null) return false;
+        
+        String normalizedModule = module.trim().toLowerCase(new Locale("es", "ES"));
+        
+        return ALLOWED_MODULES.stream()
+                .map(allowed -> allowed.toLowerCase(new Locale("es", "ES")))
+                .anyMatch(allowed -> allowed.equals(normalizedModule));
+    }
+
 }
-
-

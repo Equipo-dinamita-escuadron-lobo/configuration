@@ -1,7 +1,7 @@
 package co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.controller;
 
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.models.DocumentClass;
-import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.services.DocumentClassService;
+import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.services.IDocumentClassService;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.mapper.DocumentClassDomainMapper;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.DTO.request.DocumentClassCreateReq;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.DTO.request.DocumentClassUpdateReq;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DocumentClassController {
 
-    private final DocumentClassService service;
+    private final IDocumentClassService service;
     private final DocumentClassDomainMapper mapper;
 
     @PostMapping("/create")
@@ -32,9 +32,9 @@ public class DocumentClassController {
         return ResponseEntity.ok(mapper.toRes(updated));
     }
 
-    @GetMapping("/findById/{id}")
-    public ResponseEntity<DocumentClassRes> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(mapper.toRes(service.findById(id)));
+    @GetMapping("/findById/{id}/{enterpriseId}")
+    public ResponseEntity<DocumentClassRes> getById(@PathVariable Long id, @PathVariable String enterpriseId) {
+        return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));
     }
 
     @GetMapping("/findAll/{enterpriseId}")
@@ -46,9 +46,9 @@ public class DocumentClassController {
                 .map(mapper::toRes));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    @DeleteMapping("/delete/{id}/{enterpriseId}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
+        service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,7 +1,7 @@
 package co.unicauca.edu.co.contables.configuration.typesOfDocuments.presentation.controller;
 
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.models.DocumentType;
-import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.services.DocumentTypeService;
+import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.services.IDocumentTypeService;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.mapper.DocumentTypeDomainMapper;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.presentation.DTO.request.DocumentTypeCreateReq;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.presentation.DTO.request.DocumentTypeUpdateReq;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DocumentTypeController {
 
-    private final DocumentTypeService service;
+    private final IDocumentTypeService service;
     private final DocumentTypeDomainMapper mapper;
 
     @PostMapping("/create")
@@ -31,9 +31,9 @@ public class DocumentTypeController {
         return ResponseEntity.ok(mapper.toRes(updated));
     }
 
-    @GetMapping("/findById/{id}")
-    public ResponseEntity<DocumentTypeRes> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(mapper.toRes(service.findById(id)));
+    @GetMapping("/findById/{id}/{enterpriseId}")
+    public ResponseEntity<DocumentTypeRes> getById(@PathVariable Long id, @PathVariable String enterpriseId) {
+        return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));
     }
 
     @GetMapping("/findAll/{enterpriseId}")
@@ -45,9 +45,9 @@ public class DocumentTypeController {
                 .map(mapper::toRes));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    @DeleteMapping("/delete/{id}/{enterpriseId}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
+        service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
     }
 }

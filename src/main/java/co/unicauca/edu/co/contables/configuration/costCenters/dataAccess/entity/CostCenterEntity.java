@@ -31,7 +31,7 @@ public class CostCenterEntity {
         private Long id;
 
         @Column(name = "code", nullable = false)
-        private Integer code;
+        private String code;
 
         @Column(name = "name", nullable = false)
         private String name;

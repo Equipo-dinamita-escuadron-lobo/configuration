@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class DocumentClassService {
+public class DocumentClassServiceImpl implements IDocumentClassService {
 
     private final DocumentClassRepository repository;
     private final DocumentClassDataMapper dataMapper;
@@ -65,19 +65,21 @@ public class DocumentClassService {
         return dataMapper.toDomain(saved);
     }
 
-    public DocumentClass findById(Long id) {
-        return dataMapper.toDomain(repository.findById(id)
+    @Transactional(readOnly = true)
+    public DocumentClass findById(Long id, String idEnterprise) {
+        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)
                 .orElseThrow(DocumentClassesNotFoundException::new));
     }
 
+    @Transactional(readOnly = true)
     public Page<DocumentClass> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);
     }
 
     @Transactional
-    public void delete(Long id) {
-        DocumentClassEntity entity = repository.findById(id).orElseThrow(DocumentClassesNotFoundException::new);
+    public void delete(Long id, String idEnterprise) {
+        DocumentClassEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentClassesNotFoundException::new);
         repository.delete(entity);
     }
 

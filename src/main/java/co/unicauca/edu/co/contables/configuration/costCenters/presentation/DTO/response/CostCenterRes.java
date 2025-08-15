@@ -10,7 +10,7 @@ import lombok.*;
 public class CostCenterRes {
     private Long id;
     private String idEnterprise;
-    private Integer code;
+    private String code;
     private String name;
     private Long parentId;
 }

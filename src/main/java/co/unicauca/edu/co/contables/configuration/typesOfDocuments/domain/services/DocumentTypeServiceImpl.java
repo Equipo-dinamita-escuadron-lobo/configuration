@@ -26,7 +26,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class DocumentTypeService {
+public class DocumentTypeServiceImpl implements IDocumentTypeService {
 
     private static final Set<String> ALLOWED_MODULES = new HashSet<>(Arrays.asList(
             "Inventario promedio ponderado",
@@ -121,18 +121,20 @@ public class DocumentTypeService {
         return dataMapper.toDomain(saved);
     }
 
-    public DocumentType findById(Long id) {
-        return dataMapper.toDomain(repository.findById(id).orElseThrow(DocumentTypesNotFoundException::new));
+    @Transactional(readOnly = true)
+    public DocumentType findById(Long id, String idEnterprise) {
+        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentTypesNotFoundException::new));
     }
 
+    @Transactional(readOnly = true)
     public Page<DocumentType> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);
     }
 
     @Transactional
-    public void delete(Long id) {
-        DocumentTypeEntity entity = repository.findById(id).orElseThrow(DocumentTypesNotFoundException::new);
+    public void delete(Long id, String idEnterprise) {
+        DocumentTypeEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentTypesNotFoundException::new);
         repository.delete(entity);
     }
 

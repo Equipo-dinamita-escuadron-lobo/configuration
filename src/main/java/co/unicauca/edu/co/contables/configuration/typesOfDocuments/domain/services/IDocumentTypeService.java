@@ -15,6 +15,8 @@ public interface IDocumentTypeService {
 	DocumentType findById(Long id, String idEnterprise);
 
 	Page<DocumentType> findAllByEnterprise(String idEnterprise, int page, int size);
+	
+	Page<DocumentType> findAllByModuleAndEnterprise(String module, String idEnterprise, int page, int size);
 
 	void delete(Long id, String idEnterprise);
 }

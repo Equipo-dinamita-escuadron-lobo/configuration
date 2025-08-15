@@ -18,7 +18,6 @@ public class DocumentTypeCreateReq {
     private String prefix;
 
     @NotBlank(message = "El nombre es obligatorio")
-    @Pattern(regexp = "^[\\p{L}\\s]+$", message = "El nombre solo puede contener letras")
     private String name;
 
     @NotNull(message = "La clase de documento es obligatoria")

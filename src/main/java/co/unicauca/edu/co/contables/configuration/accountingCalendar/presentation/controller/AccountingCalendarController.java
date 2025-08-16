@@ -27,12 +27,6 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(mapper.toRes(created));
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<AccountingCalendarRes> update(@Valid @RequestBody AccountingCalendarUpdateReq req) {
-        AccountingCalendar updated = service.update(req);
-        return ResponseEntity.ok(mapper.toRes(updated));
-    }
-
     @GetMapping("/findById/{id}/{enterpriseId}")
     public ResponseEntity<AccountingCalendarRes> getById(@PathVariable Long id, @PathVariable String enterpriseId) {
         return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));

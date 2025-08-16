@@ -26,8 +26,6 @@ public interface AccountingCalendarRepository extends JpaRepository<AccountingCa
 
     boolean existsByIdEnterpriseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(String idEnterprise, LocalDate endDate, LocalDate startDate);
 
-    boolean existsByIdEnterpriseAndIdNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(String idEnterprise, Long id, LocalDate endDate, LocalDate startDate);
-
     Optional<AccountingCalendarEntity> findByIdAndIdEnterprise(Long id, String idEnterprise);
 }
 

@@ -8,8 +8,6 @@ public interface IAccountingCalendarService {
 
 	AccountingCalendar create(AccountingCalendarCreateReq request);
 
-	AccountingCalendar update(AccountingCalendarUpdateReq request);
-
 	AccountingCalendar findById(Long id, String idEnterprise);
 
     Page<AccountingCalendar> findAllByEnterprise(String idEnterprise, int page, int size);

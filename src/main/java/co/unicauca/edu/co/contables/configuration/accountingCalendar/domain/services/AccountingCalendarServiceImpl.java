@@ -50,38 +50,6 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 		return dataMapper.toDomain(saved);
 	}
 
-	@Transactional
-	public AccountingCalendar update(AccountingCalendarUpdateReq request) {
-        AccountingCalendarEntity current = repository.findById(request.getId())
-                .orElseThrow(AccountingCalendarNotFoundException::new);
-
-		if (request.getIdEnterprise() != null) current.setIdEnterprise(request.getIdEnterprise());
-        if (request.getStartDate() != null) current.setStartDate(request.getStartDate());
-        if (request.getEndDate() != null) current.setEndDate(request.getEndDate());
-        if (request.getStatus() != null) current.setStatus(request.getStatus());
-
-        // Validación rango fecha inicio < fecha fin
-        if (current.getStartDate().isAfter(current.getEndDate())) {
-            throw new AccountingCalendarInvalidRangeException();
-        }
-
-        // Validar solapamiento en update si cambian fechas o empresa
-        String targetEnterprise = request.getIdEnterprise() != null ? request.getIdEnterprise() : current.getIdEnterprise();
-        boolean startChanged = request.getStartDate() != null;
-        boolean endChanged = request.getEndDate() != null;
-        if (startChanged || endChanged) {
-            LocalDate newStart = startChanged ? request.getStartDate() : current.getStartDate();
-            LocalDate newEnd = endChanged ? request.getEndDate() : current.getEndDate();
-            boolean overlap = repository.existsByIdEnterpriseAndIdNotAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                    targetEnterprise, current.getId(), newEnd, newStart);
-            if (overlap) {
-                throw new AccountingCalendarOverlapException();
-            }
-        }
-
-		return dataMapper.toDomain(repository.save(current));
-	}
-
     @Transactional(readOnly = true)
     public AccountingCalendar findById(Long id, String idEnterprise) {
         return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)

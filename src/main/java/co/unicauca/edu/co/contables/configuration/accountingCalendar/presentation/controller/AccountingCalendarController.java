@@ -60,13 +60,6 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(result.map(mapper::toRes));
     }
 
-    @PostMapping("/changeState/all/{enterpriseId}")
-    public ResponseEntity<Void> changeStateAll(@PathVariable String enterpriseId, @RequestParam int year, @RequestParam Boolean status) {
-        service.changeStateAll(enterpriseId, year, status);
-        return ResponseEntity.noContent().build();
-    }
-
-    
 
     @DeleteMapping("/delete/{id}/{enterpriseId}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {

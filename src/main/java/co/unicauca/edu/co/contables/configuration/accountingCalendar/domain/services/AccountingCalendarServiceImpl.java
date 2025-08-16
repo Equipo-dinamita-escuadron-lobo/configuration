@@ -111,11 +111,13 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
     }
 
 	@Transactional
-	public void changeStateAll(String idEnterprise, Boolean status) {
+	public void changeStateAll(String idEnterprise, int year, Boolean status) {
 		int page = 0;
 		Page<AccountingCalendarEntity> result;
 		do {
-			result = repository.findAllByIdEnterprise(idEnterprise, PageRequest.of(page, 500));
+			LocalDate startDate = LocalDate.of(year, 1, 1);
+			LocalDate endDate = LocalDate.of(year, 12, 31);
+			result = repository.findAllByIdEnterpriseAndStartDateBetween(idEnterprise, startDate, endDate, PageRequest.of(page, 500));
 			List<AccountingCalendarEntity> toUpdate = new ArrayList<>();
 			for (AccountingCalendarEntity entity : result.getContent()) {
 				if (entity.isStatus() != status) {
@@ -132,28 +134,6 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 		} while (result.hasNext());
 	}
 
-	@Transactional
-	public void changeStateRange(AccountingCalendarRangeStateReq request) {
-		int page = 0;
-		Page<AccountingCalendarEntity> result;
-		do {
-			result = repository.findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
-					request.getIdEnterprise(), request.getStartDate(), request.getEndDate(), PageRequest.of(page, 500));
-			List<AccountingCalendarEntity> toUpdate = new ArrayList<>();
-			for (AccountingCalendarEntity entity : result.getContent()) {
-				if (entity.isStatus() != request.getStatus()) {
-					entity.setStatus(request.getStatus());
-					toUpdate.add(entity);
-				}
-			}
-			if (!toUpdate.isEmpty()) {
-				repository.saveAll(toUpdate);
-				entityManager.flush();
-				entityManager.clear();
-			}
-			page++;
-		} while (result.hasNext());
-	}
 
     
 

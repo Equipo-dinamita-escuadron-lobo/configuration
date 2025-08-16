@@ -18,9 +18,8 @@ public interface IAccountingCalendarService {
 
 	Page<AccountingCalendar> findByYear(String idEnterprise, int year, int page, int size);
 
-    void changeStateAll(String idEnterprise, Boolean status);
+    void changeStateAll(String idEnterprise, int year, Boolean status);
 
-    void changeStateRange(AccountingCalendarRangeStateReq request);
 
 	void delete(Long id, String idEnterprise);
 }

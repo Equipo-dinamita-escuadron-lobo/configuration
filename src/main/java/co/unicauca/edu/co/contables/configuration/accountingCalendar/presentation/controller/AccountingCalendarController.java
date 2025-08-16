@@ -61,14 +61,8 @@ public class AccountingCalendarController {
     }
 
     @PostMapping("/changeState/all/{enterpriseId}")
-    public ResponseEntity<Void> changeStateAll(@PathVariable String enterpriseId, @RequestParam Boolean status) {
-        service.changeStateAll(enterpriseId, status);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/changeState/range")
-    public ResponseEntity<Void> changeStateRange(@Valid @RequestBody AccountingCalendarRangeStateReq req) {
-        service.changeStateRange(req);
+    public ResponseEntity<Void> changeStateAll(@PathVariable String enterpriseId, @RequestParam int year, @RequestParam Boolean status) {
+        service.changeStateAll(enterpriseId, year, status);
         return ResponseEntity.noContent().build();
     }
 

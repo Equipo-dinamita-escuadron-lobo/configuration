@@ -10,8 +10,6 @@ import java.time.LocalDate;
 
 public interface AccountingCalendarRepository extends JpaRepository<AccountingCalendarEntity, Long> {
 
-    Page<AccountingCalendarEntity> findAllByIdEnterprise(String idEnterprise, Pageable pageable);
-
     Page<AccountingCalendarEntity> findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
             String idEnterprise, LocalDate startDate, LocalDate endDate, Pageable pageable);
 

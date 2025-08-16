@@ -57,13 +57,6 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
     }
 
 	@Transactional(readOnly = true)
-	public Page<AccountingCalendar> findAllByEnterprise(String idEnterprise, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByIdEnterprise(idEnterprise, pageable)
-                .map(dataMapper::toDomain);
-    }
-
-	@Transactional(readOnly = true)
 	public Page<AccountingCalendar> findByRange(String idEnterprise, LocalDate startDate, LocalDate endDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(

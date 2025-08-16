@@ -10,8 +10,6 @@ public interface IAccountingCalendarService {
 
 	AccountingCalendar findById(Long id, String idEnterprise);
 
-    Page<AccountingCalendar> findAllByEnterprise(String idEnterprise, int page, int size);
-
     Page<AccountingCalendar> findByRange(String idEnterprise, java.time.LocalDate startDate, java.time.LocalDate endDate, int page, int size);
 
 

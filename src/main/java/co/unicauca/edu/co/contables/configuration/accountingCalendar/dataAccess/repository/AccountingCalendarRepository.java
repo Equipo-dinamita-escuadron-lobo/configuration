@@ -16,10 +16,13 @@ public interface AccountingCalendarRepository extends JpaRepository<AccountingCa
             String idEnterprise, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     default Page<AccountingCalendarEntity> findAllByEnterpriseAndYear(String idEnterprise, int year, Pageable pageable) {
-        LocalDate start = LocalDate.of(year, 1, 1);
-        LocalDate end = LocalDate.of(year, 12, 31);
-        return findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(idEnterprise, start, end, pageable);
+        LocalDate yearStart = LocalDate.of(year, 1, 1);
+        LocalDate yearEnd = LocalDate.of(year, 12, 31);
+        return findAllByIdEnterpriseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(idEnterprise, yearEnd, yearStart, pageable);
     }
+
+    Page<AccountingCalendarEntity> findAllByIdEnterpriseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            String idEnterprise, LocalDate endDate, LocalDate startDate, Pageable pageable);
 
     boolean existsByIdEnterpriseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(String idEnterprise, LocalDate endDate, LocalDate startDate);
 

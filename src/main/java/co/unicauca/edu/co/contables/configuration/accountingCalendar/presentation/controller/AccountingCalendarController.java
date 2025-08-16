@@ -44,16 +44,6 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(result.map(mapper::toRes));
     }
 
-    @GetMapping("/findByYear/{enterpriseId}")
-    public ResponseEntity<Page<AccountingCalendarRes>> findByYear(
-            @PathVariable String enterpriseId,
-            @RequestParam int year,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<AccountingCalendar> result = service.findByYear(enterpriseId, year, page, size);
-        return ResponseEntity.ok(result.map(mapper::toRes));
-    }
-
 
     @DeleteMapping("/delete/{id}/{enterpriseId}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {

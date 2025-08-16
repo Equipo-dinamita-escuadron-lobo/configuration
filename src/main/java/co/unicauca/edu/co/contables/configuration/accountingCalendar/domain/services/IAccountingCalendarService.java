@@ -14,8 +14,6 @@ public interface IAccountingCalendarService {
 
     Page<AccountingCalendar> findByRange(String idEnterprise, java.time.LocalDate startDate, java.time.LocalDate endDate, int page, int size);
 
-	Page<AccountingCalendar> findByYear(String idEnterprise, int year, int page, int size);
-
 
 	void delete(Long id, String idEnterprise);
 }

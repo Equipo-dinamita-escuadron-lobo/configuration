@@ -70,12 +70,6 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
                 idEnterprise, startDate, endDate, pageable).map(dataMapper::toDomain);
     }
 
-    @Transactional(readOnly = true)
-    public Page<AccountingCalendar> findByYear(String idEnterprise, int year, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByEnterpriseAndYear(idEnterprise, year, pageable).map(dataMapper::toDomain);
-    }
-
 
     @Transactional
     public void delete(Long id, String idEnterprise) {

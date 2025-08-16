@@ -70,6 +70,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
                 .orElseThrow(AccountingCalendarNotFoundException::new);
         repository.delete(entity);
     }
+
 }
 
 

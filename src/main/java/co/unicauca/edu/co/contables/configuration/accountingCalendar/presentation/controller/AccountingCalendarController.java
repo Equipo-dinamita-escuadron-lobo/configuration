@@ -50,6 +50,5 @@ public class AccountingCalendarController {
         service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
     }
+
 }
-
-

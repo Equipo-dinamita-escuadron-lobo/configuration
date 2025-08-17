@@ -27,12 +27,6 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(mapper.toRes(created));
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<AccountingCalendarRes> update(@Valid @RequestBody AccountingCalendarUpdateReq req) {
-        AccountingCalendar updated = service.update(req);
-        return ResponseEntity.ok(mapper.toRes(updated));
-    }
-
     @GetMapping("/findById/{id}/{enterpriseId}")
     public ResponseEntity<AccountingCalendarRes> getById(@PathVariable Long id, @PathVariable String enterpriseId) {
         return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));
@@ -50,35 +44,11 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(result.map(mapper::toRes));
     }
 
-    @GetMapping("/findByYear/{enterpriseId}")
-    public ResponseEntity<Page<AccountingCalendarRes>> findByYear(
-            @PathVariable String enterpriseId,
-            @RequestParam int year,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<AccountingCalendar> result = service.findByYear(enterpriseId, year, page, size);
-        return ResponseEntity.ok(result.map(mapper::toRes));
-    }
-
-    @PostMapping("/changeState/all/{enterpriseId}")
-    public ResponseEntity<Void> changeStateAll(@PathVariable String enterpriseId, @RequestParam Boolean status) {
-        service.changeStateAll(enterpriseId, status);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/changeState/range")
-    public ResponseEntity<Void> changeStateRange(@Valid @RequestBody AccountingCalendarRangeStateReq req) {
-        service.changeStateRange(req);
-        return ResponseEntity.noContent().build();
-    }
-
-    
 
     @DeleteMapping("/delete/{id}/{enterpriseId}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
         service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
     }
+
 }
-
-

@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 @RestController
@@ -32,19 +31,6 @@ public class AccountingCalendarController {
     public ResponseEntity<AccountingCalendarRes> getById(@PathVariable Long id, @PathVariable String enterpriseId) {
         return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));
     }
-
-    
-    @GetMapping("/findByRange/{enterpriseId}")
-    public ResponseEntity<Page<AccountingCalendarRes>> findByRange(
-            @PathVariable String enterpriseId,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<AccountingCalendar> result = service.findByRange(enterpriseId, startDate, endDate, page, size);
-        return ResponseEntity.ok(result.map(mapper::toRes));
-    }
-
 
     @DeleteMapping("/delete/{id}/{enterpriseId}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {

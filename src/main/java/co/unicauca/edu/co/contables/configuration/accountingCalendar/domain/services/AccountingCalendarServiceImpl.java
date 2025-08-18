@@ -53,14 +53,6 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
                 .orElseThrow(AccountingCalendarNotFoundException::new));
     }
 
-	@Transactional(readOnly = true)
-	public Page<AccountingCalendar> findByRange(String idEnterprise, LocalDate startDate, LocalDate endDate, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByIdEnterpriseAndDateBetween(
-                idEnterprise, startDate, endDate, pageable).map(dataMapper::toDomain);
-    }
-
-
     @Transactional
     public void delete(Long id, String idEnterprise) {
         AccountingCalendarEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise)

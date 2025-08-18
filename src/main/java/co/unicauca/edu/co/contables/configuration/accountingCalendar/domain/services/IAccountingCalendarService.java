@@ -10,9 +10,6 @@ public interface IAccountingCalendarService {
 
 	AccountingCalendar findById(Long id, String idEnterprise);
 
-    Page<AccountingCalendar> findByRange(String idEnterprise, java.time.LocalDate startDate, java.time.LocalDate endDate, int page, int size);
-
-
 	void delete(Long id, String idEnterprise);
 
 	AccountingCalendar openMonth(AccountingCalendarCreateMonthReq request);

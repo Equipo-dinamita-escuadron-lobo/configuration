@@ -10,9 +10,6 @@ import java.time.LocalDate;
 
 public interface AccountingCalendarRepository extends JpaRepository<AccountingCalendarEntity, Long> {
 
-    Page<AccountingCalendarEntity> findAllByIdEnterpriseAndDateBetween(
-            String idEnterprise, LocalDate startDate, LocalDate endDate, Pageable pageable);
-
     boolean existsByIdEnterpriseAndDate(String idEnterprise, LocalDate date);
 
     Optional<AccountingCalendarEntity> findByIdAndIdEnterprise(Long id, String idEnterprise);

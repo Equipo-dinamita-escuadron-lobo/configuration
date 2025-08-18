@@ -17,10 +17,7 @@ public class AccountingCalendarCreateReq {
     private String idEnterprise;
 
     @NotNull
-    private LocalDate startDate;
-
-    @NotNull
-    private LocalDate endDate;
+    private LocalDate date;
 
     private Boolean status; // true: OPEN, false: CLOSED (default false)
 }

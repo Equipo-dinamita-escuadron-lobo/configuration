@@ -13,8 +13,7 @@ public class AccountingCalendarRes {
     private Long id;
     private String idEnterprise;
     private String tenantId;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate date;
     private boolean status;
 }
 

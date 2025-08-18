@@ -12,8 +12,7 @@ import java.time.LocalDate;
 public class AccountingCalendar {
     private Long id;
     private String idEnterprise;    
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate date;
     private boolean status;
     private String tenantId;
 }

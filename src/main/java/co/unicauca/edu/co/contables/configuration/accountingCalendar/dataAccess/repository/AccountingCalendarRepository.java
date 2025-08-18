@@ -10,17 +10,17 @@ import java.time.LocalDate;
 
 public interface AccountingCalendarRepository extends JpaRepository<AccountingCalendarEntity, Long> {
 
-    Page<AccountingCalendarEntity> findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+    Page<AccountingCalendarEntity> findAllByIdEnterpriseAndDateBetween(
             String idEnterprise, LocalDate startDate, LocalDate endDate, Pageable pageable);
 
-    boolean existsByIdEnterpriseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(String idEnterprise, LocalDate endDate, LocalDate startDate);
+    boolean existsByIdEnterpriseAndDate(String idEnterprise, LocalDate date);
 
     Optional<AccountingCalendarEntity> findByIdAndIdEnterprise(Long id, String idEnterprise);
 
-    Page<AccountingCalendarEntity> findAllByIdEnterpriseAndStatusAndStartDateBetweenOrderByStartDateAsc(
+    Page<AccountingCalendarEntity> findAllByIdEnterpriseAndStatusAndDateBetweenOrderByDateAsc(
             String idEnterprise, boolean status, LocalDate startOfYear, LocalDate endOfYear, Pageable pageable);
 
-    long deleteByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+    long deleteByIdEnterpriseAndDateBetween(
             String idEnterprise, LocalDate startDate, LocalDate endDate);
 
 }

@@ -7,7 +7,6 @@ import co.unicauca.edu.co.contables.configuration.accountingCalendar.domain.mapp
 import co.unicauca.edu.co.contables.configuration.accountingCalendar.domain.models.AccountingCalendar;
 import co.unicauca.edu.co.contables.configuration.accountingCalendar.presentation.DTO.request.*;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarOverlapException;
-import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarInvalidRangeException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
@@ -34,13 +33,10 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 
 	@Transactional
 	public AccountingCalendar create(AccountingCalendarCreateReq request) {
-        if (request.getStartDate().isAfter(request.getEndDate())) {
-            throw new AccountingCalendarInvalidRangeException();
-        }
-        // Validar solapamiento
-        boolean overlap = repository.existsByIdEnterpriseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                request.getIdEnterprise(), request.getEndDate(), request.getStartDate());
-        if (overlap) {
+        // Validar si ya existe una fecha para ese día
+        boolean exists = repository.existsByIdEnterpriseAndDate(
+                request.getIdEnterprise(), request.getDate());
+        if (exists) {
             throw new AccountingCalendarOverlapException();
         }
         AccountingCalendar domain = domainMapper.toDomain(request);
@@ -60,7 +56,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 	@Transactional(readOnly = true)
 	public Page<AccountingCalendar> findByRange(String idEnterprise, LocalDate startDate, LocalDate endDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+        return repository.findAllByIdEnterpriseAndDateBetween(
                 idEnterprise, startDate, endDate, pageable).map(dataMapper::toDomain);
     }
 
@@ -81,8 +77,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         while (!cursor.isAfter(endOfMonth)) {
             AccountingCalendarCreateReq createReq = AccountingCalendarCreateReq.builder()
                     .idEnterprise(request.getIdEnterprise())
-                    .startDate(cursor)
-                    .endDate(cursor)
+                    .date(cursor)
                     .status(request.getStatus())
                     .build();
             lastCreated = create(createReq);
@@ -96,7 +91,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         YearMonth ym = YearMonth.of(request.getYear(), request.getMonth());
         LocalDate start = ym.atDay(1);
         LocalDate end = ym.atEndOfMonth();
-        return repository.deleteByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+        return repository.deleteByIdEnterpriseAndDateBetween(
                 request.getIdEnterprise(), start, end);
     }
 
@@ -108,8 +103,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         while (!cursor.isAfter(endOfYear)) {
             AccountingCalendarCreateReq createReq = AccountingCalendarCreateReq.builder()
                     .idEnterprise(request.getIdEnterprise())
-                    .startDate(cursor)
-                    .endDate(cursor)
+                    .date(cursor)
                     .status(request.getStatus())
                     .build();
             lastCreated = create(createReq);
@@ -122,7 +116,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
     public long deleteByYear(AccountingCalendarDeleteYearReq request) {
         LocalDate start = LocalDate.of(request.getYear(), 1, 1);
         LocalDate end = LocalDate.of(request.getYear(), 12, 31);
-        return repository.deleteByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+        return repository.deleteByIdEnterpriseAndDateBetween(
                 request.getIdEnterprise(), start, end);
     }
 
@@ -131,7 +125,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         Pageable pageable = PageRequest.of(page, size);
         LocalDate startOfYear = LocalDate.of(year, 1, 1);
         LocalDate endOfYear = LocalDate.of(year, 12, 31);
-        return repository.findAllByIdEnterpriseAndStatusAndStartDateBetweenOrderByStartDateAsc(
+        return repository.findAllByIdEnterpriseAndStatusAndDateBetweenOrderByDateAsc(
                 idEnterprise, true, startOfYear, endOfYear, pageable).map(dataMapper::toDomain);
     }
 

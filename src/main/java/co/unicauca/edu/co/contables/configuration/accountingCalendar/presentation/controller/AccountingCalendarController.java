@@ -81,7 +81,7 @@ public class AccountingCalendarController {
             @PathVariable String enterpriseId,
             @RequestParam int year,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "400") int size) {
         Page<AccountingCalendar> result = service.findActiveByEnterpriseAndYear(enterpriseId, year, page, size);
         return ResponseEntity.ok(result.map(mapper::toRes));
     }

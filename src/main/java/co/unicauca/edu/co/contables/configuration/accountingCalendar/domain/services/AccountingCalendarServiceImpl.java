@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,11 +81,12 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         // 2. Buscar fechas que ya existen
         List<AccountingCalendarEntity> existingEntities = repository.findAllByIdEnterpriseAndDateBetween(
                 request.getIdEnterprise(), start, end);
-        List<LocalDate> existingDates = existingEntities.stream()
+        // 3. Usar HashSet para búsqueda
+        Set<LocalDate> existingDates = existingEntities.stream()
                 .map(AccountingCalendarEntity::getDate)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         
-        // 3. Filtrar fechas que no existen
+        // 3. Filtrar fechas que no existen 
         List<LocalDate> newDates = datesToCreate.stream()
                 .filter(date -> !existingDates.contains(date))
                 .collect(Collectors.toList());
@@ -122,11 +124,12 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         // 2. Buscar fechas que ya existen
         List<AccountingCalendarEntity> existingEntities = repository.findAllByIdEnterpriseAndDateBetween(
                 request.getIdEnterprise(), start, end);
-        List<LocalDate> existingDates = existingEntities.stream()
+        // 3. Usar HashSet para búsqueda
+        Set<LocalDate> existingDates = existingEntities.stream()
                 .map(AccountingCalendarEntity::getDate)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         
-        // 3. Filtrar fechas que no existen
+        // 3. Filtrar fechas que no existen 
         List<LocalDate> newDates = datesToCreate.stream()
                 .filter(date -> !existingDates.contains(date))
                 .collect(Collectors.toList());

@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Service
 @RequiredArgsConstructor
@@ -69,6 +70,69 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         AccountingCalendarEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise)
                 .orElseThrow(AccountingCalendarNotFoundException::new);
         repository.delete(entity);
+    }
+
+    @Transactional
+    public AccountingCalendar openMonth(AccountingCalendarCreateMonthReq request) {
+        YearMonth ym = YearMonth.of(request.getYear(), request.getMonth());
+        LocalDate cursor = ym.atDay(1);
+        LocalDate endOfMonth = ym.atEndOfMonth();
+        AccountingCalendar lastCreated = null;
+        while (!cursor.isAfter(endOfMonth)) {
+            AccountingCalendarCreateReq createReq = AccountingCalendarCreateReq.builder()
+                    .idEnterprise(request.getIdEnterprise())
+                    .startDate(cursor)
+                    .endDate(cursor)
+                    .status(request.getStatus())
+                    .build();
+            lastCreated = create(createReq);
+            cursor = cursor.plusDays(1);
+        }
+        return lastCreated;
+    }
+
+    @Transactional
+    public long deleteByMonth(AccountingCalendarDeleteMonthReq request) {
+        YearMonth ym = YearMonth.of(request.getYear(), request.getMonth());
+        LocalDate start = ym.atDay(1);
+        LocalDate end = ym.atEndOfMonth();
+        return repository.deleteByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+                request.getIdEnterprise(), start, end);
+    }
+
+    @Transactional
+    public AccountingCalendar openYear(AccountingCalendarCreateYearReq request) {
+        LocalDate cursor = LocalDate.of(request.getYear(), 1, 1);
+        LocalDate endOfYear = LocalDate.of(request.getYear(), 12, 31);
+        AccountingCalendar lastCreated = null;
+        while (!cursor.isAfter(endOfYear)) {
+            AccountingCalendarCreateReq createReq = AccountingCalendarCreateReq.builder()
+                    .idEnterprise(request.getIdEnterprise())
+                    .startDate(cursor)
+                    .endDate(cursor)
+                    .status(request.getStatus())
+                    .build();
+            lastCreated = create(createReq);
+            cursor = cursor.plusDays(1);
+        }
+        return lastCreated;
+    }
+
+    @Transactional
+    public long deleteByYear(AccountingCalendarDeleteYearReq request) {
+        LocalDate start = LocalDate.of(request.getYear(), 1, 1);
+        LocalDate end = LocalDate.of(request.getYear(), 12, 31);
+        return repository.deleteByIdEnterpriseAndStartDateGreaterThanEqualAndEndDateLessThanEqual(
+                request.getIdEnterprise(), start, end);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AccountingCalendar> findActiveByEnterpriseAndYear(String idEnterprise, int year, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        LocalDate startOfYear = LocalDate.of(year, 1, 1);
+        LocalDate endOfYear = LocalDate.of(year, 12, 31);
+        return repository.findAllByIdEnterpriseAndStatusAndStartDateBetweenOrderByStartDateAsc(
+                idEnterprise, true, startOfYear, endOfYear, pageable).map(dataMapper::toDomain);
     }
 
 }

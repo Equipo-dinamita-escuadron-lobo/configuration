@@ -15,9 +15,6 @@ public interface AccountingCalendarDomainMapper {
     @Mapping(target = "tenantId", ignore = true)
     AccountingCalendar toDomain(AccountingCalendarCreateReq req);
 
-    @Mapping(target = "tenantId", ignore = true)
-    AccountingCalendar toDomain(AccountingCalendarUpdateReq req);
-
     AccountingCalendarRes toRes(AccountingCalendar domain);
 
     @AfterMapping

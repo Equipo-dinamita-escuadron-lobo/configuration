@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @RestController
 @RequestMapping("/api/config/accounting-calendar")
@@ -49,6 +50,40 @@ public class AccountingCalendarController {
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
         service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/open-month")
+    public ResponseEntity<AccountingCalendarRes> openMonth(@Valid @RequestBody AccountingCalendarCreateMonthReq req) {
+        AccountingCalendar created = service.openMonth(req);
+        return ResponseEntity.ok(mapper.toRes(created));
+    }
+
+    @DeleteMapping("/delete-month")
+    public ResponseEntity<Void> deleteByMonth(@Valid @RequestBody AccountingCalendarDeleteMonthReq req) {
+        service.deleteByMonth(req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/open-year")
+    public ResponseEntity<AccountingCalendarRes> openYear(@Valid @RequestBody AccountingCalendarCreateYearReq req) {
+        AccountingCalendar created = service.openYear(req);
+        return ResponseEntity.ok(mapper.toRes(created));
+    }
+
+    @DeleteMapping("/delete-year")
+    public ResponseEntity<Void> deleteByYear(@Valid @RequestBody AccountingCalendarDeleteYearReq req) {
+        service.deleteByYear(req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/active/{enterpriseId}")
+    public ResponseEntity<Page<AccountingCalendarRes>> findActiveByEnterpriseAndYear(
+            @PathVariable String enterpriseId,
+            @RequestParam int year,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<AccountingCalendar> result = service.findActiveByEnterpriseAndYear(enterpriseId, year, page, size);
+        return ResponseEntity.ok(result.map(mapper::toRes));
     }
 
 }

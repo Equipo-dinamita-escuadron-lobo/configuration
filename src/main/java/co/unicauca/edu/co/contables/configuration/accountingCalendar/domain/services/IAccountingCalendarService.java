@@ -15,6 +15,16 @@ public interface IAccountingCalendarService {
 
 	void delete(Long id, String idEnterprise);
 
+	AccountingCalendar openMonth(AccountingCalendarCreateMonthReq request);
+
+	long deleteByMonth(AccountingCalendarDeleteMonthReq request);
+
+	AccountingCalendar openYear(AccountingCalendarCreateYearReq request);
+
+	long deleteByYear(AccountingCalendarDeleteYearReq request);
+
+	Page<AccountingCalendar> findActiveByEnterpriseAndYear(String idEnterprise, int year, int page, int size);
+
 }
 
 

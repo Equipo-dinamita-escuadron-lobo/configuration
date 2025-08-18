@@ -8,6 +8,7 @@ import co.unicauca.edu.co.contables.configuration.accountingCalendar.domain.mode
 import co.unicauca.edu.co.contables.configuration.accountingCalendar.presentation.DTO.request.*;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarDateExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarNotFoundException;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarInvalidDateException;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -21,7 +22,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +36,11 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
 
 	@Transactional
 	public AccountingCalendar create(AccountingCalendarCreateReq request) {
+        // Validar que la fecha sea después del año 2000
+        if (request.getDate().getYear() < 2000) {
+            throw new AccountingCalendarInvalidDateException();
+        }
+        
         // Validar si ya existe una fecha para ese día
         boolean exists = repository.existsByIdEnterpriseAndDate(
                 request.getIdEnterprise(), request.getDate());

@@ -19,6 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -61,21 +64,37 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
     }
 
     @Transactional
-    public AccountingCalendar openMonth(AccountingCalendarCreateMonthReq request) {
+    public List<AccountingCalendar> openMonthBatch(AccountingCalendarCreateMonthReq request) {
         YearMonth ym = YearMonth.of(request.getYear(), request.getMonth());
-        LocalDate cursor = ym.atDay(1);
-        LocalDate endOfMonth = ym.atEndOfMonth();
-        AccountingCalendar lastCreated = null;
-        while (!cursor.isAfter(endOfMonth)) {
-            AccountingCalendarCreateReq createReq = AccountingCalendarCreateReq.builder()
-                    .idEnterprise(request.getIdEnterprise())
-                    .date(cursor)
-                    .status(request.getStatus())
-                    .build();
-            lastCreated = create(createReq);
-            cursor = cursor.plusDays(1);
-        }
-        return lastCreated;
+        LocalDate start = ym.atDay(1);
+        LocalDate end = ym.atEndOfMonth();
+        
+        // 1. Generar todas las fechas del mes
+        List<LocalDate> datesToCreate = generateDateRange(start, end);
+        
+        // 2. Buscar fechas que ya existen
+        List<AccountingCalendarEntity> existingEntities = repository.findAllByIdEnterpriseAndDateBetween(
+                request.getIdEnterprise(), start, end);
+        List<LocalDate> existingDates = existingEntities.stream()
+                .map(AccountingCalendarEntity::getDate)
+                .collect(Collectors.toList());
+        
+        // 3. Filtrar fechas que no existen
+        List<LocalDate> newDates = datesToCreate.stream()
+                .filter(date -> !existingDates.contains(date))
+                .collect(Collectors.toList());
+        
+        // 4. Crear entidades en batch
+        List<AccountingCalendarEntity> entities = newDates.stream()
+                .map(date -> createEntity(request.getIdEnterprise(), date, request.getStatus()))
+                .collect(Collectors.toList());
+        
+        // 5. Insertar en batch
+        List<AccountingCalendarEntity> saved = repository.saveAll(entities);
+        
+        return saved.stream()
+                .map(dataMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -88,20 +107,36 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
     }
 
     @Transactional
-    public AccountingCalendar openYear(AccountingCalendarCreateYearReq request) {
-        LocalDate cursor = LocalDate.of(request.getYear(), 1, 1);
-        LocalDate endOfYear = LocalDate.of(request.getYear(), 12, 31);
-        AccountingCalendar lastCreated = null;
-        while (!cursor.isAfter(endOfYear)) {
-            AccountingCalendarCreateReq createReq = AccountingCalendarCreateReq.builder()
-                    .idEnterprise(request.getIdEnterprise())
-                    .date(cursor)
-                    .status(request.getStatus())
-                    .build();
-            lastCreated = create(createReq);
-            cursor = cursor.plusDays(1);
-        }
-        return lastCreated;
+    public List<AccountingCalendar> openYearBatch(AccountingCalendarCreateYearReq request) {
+        LocalDate start = LocalDate.of(request.getYear(), 1, 1);
+        LocalDate end = LocalDate.of(request.getYear(), 12, 31);
+        
+        // 1. Generar todas las fechas del año
+        List<LocalDate> datesToCreate = generateDateRange(start, end);
+        
+        // 2. Buscar fechas que ya existen
+        List<AccountingCalendarEntity> existingEntities = repository.findAllByIdEnterpriseAndDateBetween(
+                request.getIdEnterprise(), start, end);
+        List<LocalDate> existingDates = existingEntities.stream()
+                .map(AccountingCalendarEntity::getDate)
+                .collect(Collectors.toList());
+        
+        // 3. Filtrar fechas que no existen
+        List<LocalDate> newDates = datesToCreate.stream()
+                .filter(date -> !existingDates.contains(date))
+                .collect(Collectors.toList());
+        
+        // 4. Crear entidades en batch
+        List<AccountingCalendarEntity> entities = newDates.stream()
+                .map(date -> createEntity(request.getIdEnterprise(), date, request.getStatus()))
+                .collect(Collectors.toList());
+        
+        // 5. Insertar en batch
+        List<AccountingCalendarEntity> saved = repository.saveAll(entities);
+        
+        return saved.stream()
+                .map(dataMapper::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -119,6 +154,20 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         LocalDate endOfYear = LocalDate.of(year, 12, 31);
         return repository.findAllByIdEnterpriseAndStatusAndDateBetweenOrderByDateAsc(
                 idEnterprise, true, startOfYear, endOfYear, pageable).map(dataMapper::toDomain);
+    }
+
+    // Métodos auxiliares privados
+    private List<LocalDate> generateDateRange(LocalDate start, LocalDate end) {
+        return start.datesUntil(end.plusDays(1))
+                .collect(Collectors.toList());
+    }
+
+    private AccountingCalendarEntity createEntity(String idEnterprise, LocalDate date, boolean status) {
+        return AccountingCalendarEntity.builder()
+                .idEnterprise(idEnterprise)
+                .date(date)
+                .status(status)
+                .build();
     }
 
 }

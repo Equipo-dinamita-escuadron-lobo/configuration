@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/config/accounting-calendar")
@@ -39,9 +41,9 @@ public class AccountingCalendarController {
     }
 
     @PostMapping("/open-month")
-    public ResponseEntity<AccountingCalendarRes> openMonth(@Valid @RequestBody AccountingCalendarCreateMonthReq req) {
-        AccountingCalendar created = service.openMonth(req);
-        return ResponseEntity.ok(mapper.toRes(created));
+    public ResponseEntity<List<AccountingCalendarRes>> openMonthBatch(@Valid @RequestBody AccountingCalendarCreateMonthReq req) {
+        List<AccountingCalendar> created = service.openMonthBatch(req);
+        return ResponseEntity.ok(created.stream().map(mapper::toRes).collect(Collectors.toList()));
     }
 
     @DeleteMapping("/delete-month")
@@ -51,9 +53,9 @@ public class AccountingCalendarController {
     }
 
     @PostMapping("/open-year")
-    public ResponseEntity<AccountingCalendarRes> openYear(@Valid @RequestBody AccountingCalendarCreateYearReq req) {
-        AccountingCalendar created = service.openYear(req);
-        return ResponseEntity.ok(mapper.toRes(created));
+    public ResponseEntity<List<AccountingCalendarRes>> openYearBatch(@Valid @RequestBody AccountingCalendarCreateYearReq req) {
+        List<AccountingCalendar> created = service.openYearBatch(req);
+        return ResponseEntity.ok(created.stream().map(mapper::toRes).collect(Collectors.toList()));
     }
 
     @DeleteMapping("/delete-year")

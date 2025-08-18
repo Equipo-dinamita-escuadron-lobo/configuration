@@ -6,7 +6,7 @@ import co.unicauca.edu.co.contables.configuration.accountingCalendar.dataAccess.
 import co.unicauca.edu.co.contables.configuration.accountingCalendar.domain.mapper.AccountingCalendarDomainMapper;
 import co.unicauca.edu.co.contables.configuration.accountingCalendar.domain.models.AccountingCalendar;
 import co.unicauca.edu.co.contables.configuration.accountingCalendar.presentation.DTO.request.*;
-import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarOverlapException;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarDateExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.accountingCalendar.AccountingCalendarNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
@@ -37,7 +37,7 @@ public class AccountingCalendarServiceImpl implements IAccountingCalendarService
         boolean exists = repository.existsByIdEnterpriseAndDate(
                 request.getIdEnterprise(), request.getDate());
         if (exists) {
-            throw new AccountingCalendarOverlapException();
+            throw new AccountingCalendarDateExistsException();
         }
         AccountingCalendar domain = domainMapper.toDomain(request);
         if (request.getStatus() == null) {

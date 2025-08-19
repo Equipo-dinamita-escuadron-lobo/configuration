@@ -11,7 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/config/accounting-calendar")
@@ -32,23 +33,44 @@ public class AccountingCalendarController {
         return ResponseEntity.ok(mapper.toRes(service.findById(id, enterpriseId)));
     }
 
-    
-    @GetMapping("/findByRange/{enterpriseId}")
-    public ResponseEntity<Page<AccountingCalendarRes>> findByRange(
-            @PathVariable String enterpriseId,
-            @RequestParam LocalDate startDate,
-            @RequestParam LocalDate endDate,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<AccountingCalendar> result = service.findByRange(enterpriseId, startDate, endDate, page, size);
-        return ResponseEntity.ok(result.map(mapper::toRes));
-    }
-
-
     @DeleteMapping("/delete/{id}/{enterpriseId}")
     public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
         service.delete(id, enterpriseId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/open-month")
+    public ResponseEntity<List<AccountingCalendarRes>> openMonthBatch(@Valid @RequestBody AccountingCalendarCreateMonthReq req) {
+        List<AccountingCalendar> created = service.openMonthBatch(req);
+        return ResponseEntity.ok(created.stream().map(mapper::toRes).collect(Collectors.toList()));
+    }
+
+    @DeleteMapping("/delete-month")
+    public ResponseEntity<Void> deleteByMonth(@Valid @RequestBody AccountingCalendarDeleteMonthReq req) {
+        service.deleteByMonth(req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/open-year")
+    public ResponseEntity<List<AccountingCalendarRes>> openYearBatch(@Valid @RequestBody AccountingCalendarCreateYearReq req) {
+        List<AccountingCalendar> created = service.openYearBatch(req);
+        return ResponseEntity.ok(created.stream().map(mapper::toRes).collect(Collectors.toList()));
+    }
+
+    @DeleteMapping("/delete-year")
+    public ResponseEntity<Void> deleteByYear(@Valid @RequestBody AccountingCalendarDeleteYearReq req) {
+        service.deleteByYear(req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/active/{enterpriseId}")
+    public ResponseEntity<Page<AccountingCalendarRes>> findActiveByEnterpriseAndYear(
+            @PathVariable String enterpriseId,
+            @RequestParam int year,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "400") int size) {
+        Page<AccountingCalendar> result = service.findActiveByEnterpriseAndYear(enterpriseId, year, page, size);
+        return ResponseEntity.ok(result.map(mapper::toRes));
     }
 
 }

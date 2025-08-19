@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public enum AccountingCalendarErrorCode implements ErrorCodeDefinition {
-    OVERLAPPING_PERIODS("ACCOUNTING_CALENDAR_OVERLAPPING_PERIODS", "El rango de fechas se solapa con periodos existentes"),
-    INVALID_RANGE("ACCOUNTING_CALENDAR_INVALID_RANGE", "La fecha de inicio no puede ser mayor que la fecha de fin"),
-    NOT_FOUND("ACCOUNTING_CALENDAR_NOT_FOUND", "Calendario contable no encontrado");
+    NOT_FOUND("ACCOUNTING_CALENDAR_NOT_FOUND", "Calendario contable no encontrado"),
+    DATE_ALREADY_EXISTS("ACCOUNTING_CALENDAR_DATE_EXISTS", "Ya existe una fecha para el día especificado"),
+    INVALID_DATE("ACCOUNTING_CALENDAR_INVALID_DATE", "La fecha debe ser posterior al año 2000");
 
     private final String code;
     private final String message;

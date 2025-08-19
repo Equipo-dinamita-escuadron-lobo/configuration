@@ -11,7 +11,7 @@ import java.time.LocalDate;
     name = "accounting_calendar",
     indexes = {
         @Index(name = "idx_ac_enterprise", columnList = "idEnterprise"),
-        @Index(name = "idx_ac_enterprise_start_end", columnList = "idEnterprise,startDate,endDate")
+        @Index(name = "idx_ac_enterprise_date", columnList = "idEnterprise,date")
     }
 )
 @Getter
@@ -29,10 +29,7 @@ public class AccountingCalendarEntity {
     private String idEnterprise;    
 
     @Column(nullable = false)
-    private LocalDate startDate;
-
-    @Column(nullable = false)
-    private LocalDate endDate;
+    private LocalDate date;
 
     @Column(nullable = false)
     private boolean status; // true: OPEN, false: CLOSED

@@ -2,6 +2,7 @@ package co.unicauca.edu.co.contables.configuration.costCenters.domain.services;
 
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCentersAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCentersNotFoundException;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCenterHasChildrenException;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.CostCenterEntity;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.mapper.CostCenterDataMapper;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.repository.CostCenterRepository;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -117,12 +119,17 @@ public class CostCenterServiceImpl implements ICostCenterService {
 	}
 
 	@Transactional
-	public CostCenter changeState(Long id, String idEnterprise, Boolean newState) {
+	public CostCenter changeState(Long id, String idEnterprise, Boolean status) {
 		CostCenterEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
 				.orElseThrow(CostCentersNotFoundException::new);
 
-		current.setStatus(newState);
+		// Cambiar el estado del centro de costo actual
+		current.setStatus(status);
 		CostCenterEntity saved = repository.save(current);
+
+		// Cambiar recursivamente el estado de todos los hijos
+		changeChildrenStateRecursively(id, status);
+
 		return dataMapper.toDomain(saved);
 	}
 
@@ -131,9 +138,34 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		CostCenterEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
 				.orElseThrow(CostCentersNotFoundException::new);
 
+		// Validar que el centro de costo no tenga hijos activos (no eliminados)
+		if (repository.existsByParentIdAndIsDeletedFalse(id)) {
+			throw new CostCenterHasChildrenException(current.getName(), current.getCode());
+		}
+
 		current.setIsDeleted(true);
 		CostCenterEntity saved = repository.save(current);
 		return dataMapper.toDomain(saved);
+	}
+
+	/**
+	 * Cambia recursivamente el estado de todos los centros de costo hijos (y descendientes) de un centro de costo padre.
+	 * @param parentId ID del centro de costo padre
+	 * @param status nuevo estado a aplicar
+	 */
+	private void changeChildrenStateRecursively(Long parentId, Boolean status) {
+		// Obtener todos los hijos activos (no eliminados) del centro de costo padre
+		List<CostCenterEntity> children = repository.findByParentIdAndIsDeletedFalse(parentId);
+		
+		// Cambiar el estado de cada hijo y procesar recursivamente sus descendientes
+		for (CostCenterEntity child : children) {
+			// Cambiar el estado del hijo
+			child.setStatus(status);
+			repository.save(child);
+			
+			// Procesar recursivamente los hijos de este hijo
+			changeChildrenStateRecursively(child.getId(), status);
+		}
 	}
 
 	private String standardizeName(String input) {

@@ -17,7 +17,7 @@ public interface ICostCenterService {
 
 	CostCenter findById(Long id, String idEnterprise);
 
-	CostCenter changeState(Long id, String idEnterprise, Boolean newState);
+	CostCenter changeState(Long id, String idEnterprise, Boolean status);
 
 	CostCenter softDelete(Long id, String idEnterprise);
 }

@@ -3,6 +3,7 @@ package co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.reposi
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 import java.util.Optional;
 
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.CostCenterEntity;
@@ -10,7 +11,6 @@ import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.
 
 public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Long> {
 
-    // Métodos con soft delete
     boolean existsByCodeAndIdEnterpriseAndIsDeletedFalse(String code, String idEnterprise);
 
     boolean existsByNameAndIdEnterpriseAndIsDeletedFalse(String name, String idEnterprise);
@@ -22,6 +22,12 @@ public interface CostCenterRepository extends JpaRepository<CostCenterEntity, Lo
     Page<CostCenterEntity> findAllByIdEnterpriseAndStatusAndIsDeletedFalse(String idEnterprise, Boolean status, Pageable pageable);
 
     Optional<CostCenterEntity> findByIdAndIdEnterpriseAndIsDeletedFalse(Long id, String idEnterprise);
+
+    // Método para verificar si tiene hijos activos (no eliminados)
+    boolean existsByParentIdAndIsDeletedFalse(Long parentId);
+
+    // Método para obtener todos los hijos activos (no eliminados) de un centro de costo
+    List<CostCenterEntity> findByParentIdAndIsDeletedFalse(Long parentId);
 }
 
 

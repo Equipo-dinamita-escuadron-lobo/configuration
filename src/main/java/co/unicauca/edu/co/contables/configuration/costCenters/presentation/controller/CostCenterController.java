@@ -64,8 +64,8 @@ public class CostCenterController {
     public ResponseEntity<CostCenterRes> changeState(
             @PathVariable Long id,
             @PathVariable String enterpriseId,
-            @RequestParam Boolean state) {
-        CostCenter updated = service.changeState(id, enterpriseId, state);
+            @RequestParam Boolean status) {
+        CostCenter updated = service.changeState(id, enterpriseId, status);
         return ResponseEntity.ok(mapper.toRes(updated));
     }
 

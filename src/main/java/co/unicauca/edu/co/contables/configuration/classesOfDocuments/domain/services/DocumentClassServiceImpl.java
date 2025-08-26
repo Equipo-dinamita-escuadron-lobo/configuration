@@ -31,7 +31,8 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
     public DocumentClass create(DocumentClassCreateReq request) {
         String standardizedName = standardizeName(request.getName());
 
-        if (repository.existsByNameAndIdEnterprise(standardizedName, request.getIdEnterprise())) {
+        // Validar unicidad del nombre por empresa (solo registros no eliminados)
+        if (repository.existsByNameAndIdEnterpriseAndIsDeletedFalse(standardizedName, request.getIdEnterprise())) {
             throw new DocumentClassesAlreadyExistsException(standardizedName, request.getIdEnterprise());
         }
         DocumentClass domain = domainMapper.toDomain(request);
@@ -42,7 +43,7 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
 
     @Transactional
     public DocumentClass update(DocumentClassUpdateReq request) {
-        DocumentClassEntity current = repository.findById(request.getId())
+        DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getId(), request.getIdEnterprise())
                 .orElseThrow(DocumentClassesNotFoundException::new);
 
         String targetEnterprise = request.getIdEnterprise() != null ? request.getIdEnterprise() : current.getIdEnterprise();
@@ -52,8 +53,9 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
         boolean nameChanged = standardizedName != null && !standardizedName.equals(current.getName());
         boolean enterpriseChanged = targetEnterprise != null && !targetEnterprise.equals(current.getIdEnterprise());
 
+        // Validar unicidad del nombre si cambió (solo entre registros no eliminados)
         if (nameChanged || enterpriseChanged) {
-            if (repository.existsByNameAndIdEnterpriseAndIdNot(standardizedName, targetEnterprise, current.getId())) {
+            if (repository.existsByNameAndIdEnterpriseAndIdNotAndIsDeletedFalse(standardizedName, targetEnterprise, current.getId())) {
                 throw new DocumentClassesAlreadyExistsException(standardizedName, targetEnterprise);
             }
         }
@@ -67,20 +69,34 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
 
     @Transactional(readOnly = true)
     public DocumentClass findById(Long id, String idEnterprise) {
-        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)
+        return dataMapper.toDomain(repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
                 .orElseThrow(DocumentClassesNotFoundException::new));
     }
 
     @Transactional(readOnly = true)
     public Page<DocumentClass> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);
+        return repository.findAllByIdEnterpriseAndIsDeletedFalse(idEnterprise, pageable).map(dataMapper::toDomain);
     }
 
     @Transactional
-    public void delete(Long id, String idEnterprise) {
-        DocumentClassEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentClassesNotFoundException::new);
-        repository.delete(entity);
+    public DocumentClass changeState(Long id, String idEnterprise, Boolean status) {
+        DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
+                .orElseThrow(DocumentClassesNotFoundException::new);
+
+        current.setStatus(status);
+        DocumentClassEntity saved = repository.save(current);
+        return dataMapper.toDomain(saved);
+    }
+
+    @Transactional
+    public DocumentClass softDelete(Long id, String idEnterprise) {
+        DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
+                .orElseThrow(DocumentClassesNotFoundException::new);
+
+        current.setIsDeleted(true);
+        DocumentClassEntity saved = repository.save(current);
+        return dataMapper.toDomain(saved);
     }
 
     private String standardizeName(String rawName) {

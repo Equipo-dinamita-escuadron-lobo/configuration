@@ -9,11 +9,15 @@ import java.util.Optional;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.dataAccess.entity.DocumentClassEntity;
 
 public interface DocumentClassRepository extends JpaRepository<DocumentClassEntity, Long> {
-    boolean existsByNameAndIdEnterprise(String name, String idEnterprise);
-    boolean existsByNameAndIdEnterpriseAndIdNot(String name, String idEnterprise, Long id);
-    Page<DocumentClassEntity> findAllByIdEnterprise(String idEnterprise, Pageable pageable);
+    boolean existsByNameAndIdEnterpriseAndIsDeletedFalse(String name, String idEnterprise);
 
-    Optional<DocumentClassEntity> findByIdAndIdEnterprise(Long id, String idEnterprise);
+    boolean existsByNameAndIdEnterpriseAndIdNotAndIsDeletedFalse(String name, String idEnterprise, Long id);
+
+    Page<DocumentClassEntity> findAllByIdEnterpriseAndIsDeletedFalse(String idEnterprise, Pageable pageable);
+
+    Page<DocumentClassEntity> findAllByIdEnterpriseAndStatusAndIsDeletedFalse(String idEnterprise, Boolean status, Pageable pageable);
+
+    Optional<DocumentClassEntity> findByIdAndIdEnterpriseAndIsDeletedFalse(Long id, String idEnterprise);
 }
 
 

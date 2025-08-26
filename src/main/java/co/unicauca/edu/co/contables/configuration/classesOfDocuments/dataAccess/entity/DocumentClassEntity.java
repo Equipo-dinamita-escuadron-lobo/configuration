@@ -2,6 +2,7 @@ package co.unicauca.edu.co.contables.configuration.classesOfDocuments.dataAccess
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,9 +11,6 @@ import org.hibernate.annotations.TenantId;
 @Entity
 @Table(
     name = "classes_of_documents",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"name", "id_enterprise"})
-    },
     indexes = {
         @Index(name = "idx_doc_class_id_enterprise", columnList = "id_enterprise"),
         @Index(name = "idx_doc_class_name", columnList = "name")
@@ -22,6 +20,7 @@ import org.hibernate.annotations.TenantId;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class DocumentClassEntity {
 
     @Id
@@ -33,6 +32,14 @@ public class DocumentClassEntity {
 
     @Column(name = "id_enterprise", nullable = false)
     private String idEnterprise;
+
+    @Builder.Default
+    @Column(name = "status", nullable = false)
+    private Boolean status = true;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @TenantId
     @Column(name = "tenant_id")

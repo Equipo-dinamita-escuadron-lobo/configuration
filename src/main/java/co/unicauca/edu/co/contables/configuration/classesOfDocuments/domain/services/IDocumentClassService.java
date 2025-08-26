@@ -16,5 +16,7 @@ public interface IDocumentClassService {
 
 	Page<DocumentClass> findAllByEnterprise(String idEnterprise, int page, int size);
 
-	void delete(Long id, String idEnterprise);
+	DocumentClass changeState(Long id, String idEnterprise, Boolean status);
+
+	DocumentClass softDelete(Long id, String idEnterprise);
 }

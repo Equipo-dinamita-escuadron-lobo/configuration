@@ -44,12 +44,23 @@ public class DocumentClassController {
             @RequestParam(defaultValue = "10") Integer size) {
         return ResponseEntity.ok(service.findAllByEnterprise(enterpriseId, page, size)
                 .map(mapper::toRes));
+    }   
+
+    @PatchMapping("/changeState/{id}/{enterpriseId}")
+    public ResponseEntity<DocumentClassRes> changeState(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId,
+            @RequestParam Boolean status) {
+        DocumentClass updated = service.changeState(id, enterpriseId, status);
+        return ResponseEntity.ok(mapper.toRes(updated));
     }
 
     @DeleteMapping("/delete/{id}/{enterpriseId}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
-        service.delete(id, enterpriseId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<DocumentClassRes> softDelete(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId) {
+        DocumentClass deleted = service.softDelete(id, enterpriseId);
+        return ResponseEntity.ok(mapper.toRes(deleted));
     }
 }
 

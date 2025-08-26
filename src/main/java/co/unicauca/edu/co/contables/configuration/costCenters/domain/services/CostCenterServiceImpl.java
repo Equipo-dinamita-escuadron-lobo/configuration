@@ -28,23 +28,23 @@ public class CostCenterServiceImpl implements ICostCenterService {
 
 	@Transactional
 	public CostCenter create(CostCenterCreateReq request) {
-		// Validación de unicidad por código y nombre dentro de la empresa
-		if (repository.existsByCodeAndIdEnterprise(request.getCode(), request.getIdEnterprise())) {
+		// Validación de unicidad por código y nombre dentro de la empresa (solo registros no eliminados)
+		if (repository.existsByCodeAndIdEnterpriseAndIsDeletedFalse(request.getCode(), request.getIdEnterprise())) {
 			throw new CostCentersAlreadyExistsException(request.getCode(), request.getIdEnterprise());
 		}
 		// Estandarizar nombre: primera letra mayúscula, resto minúsculas, colapsar espacios
 		String standardizedName = standardizeName(request.getName());
 		request.setName(standardizedName);
 
-		// Validación de nombre exacto (tras estandarización)
-		if (repository.existsByNameAndIdEnterprise(standardizedName, request.getIdEnterprise())) {
+		// Validación de nombre exacto (tras estandarización, solo registros no eliminados)
+		if (repository.existsByNameAndIdEnterpriseAndIsDeletedFalse(standardizedName, request.getIdEnterprise())) {
 			throw new CostCentersAlreadyExistsException(request.getName(), request.getIdEnterprise(), true);
 		}
 
 		CostCenter costCenter = domainMapper.toDomain(request);
 		CostCenterEntity entity = dataMapper.toEntity(costCenter);
 		if (request.getParentId() != null) {
-			CostCenterEntity parent = repository.findByIdAndIdEnterprise(request.getParentId(), request.getIdEnterprise())
+			CostCenterEntity parent = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getParentId(), request.getIdEnterprise())
 					.orElseThrow(CostCentersNotFoundException::new);
 			entity.setParent(parent);
 		}
@@ -55,14 +55,14 @@ public class CostCenterServiceImpl implements ICostCenterService {
 
 	@Transactional
 	public CostCenter update(CostCenterUpdateReq request) {
-		CostCenterEntity current = repository.findById(request.getId())
+		CostCenterEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getId(), request.getIdEnterprise())
 				.orElseThrow(CostCentersNotFoundException::new);
 
 		// Estandarizar nombre antes de validar
 		String standardizedName = standardizeName(request.getName());
 		request.setName(standardizedName);
 
-		// Si cambian code o name, validar que no exista otro con esos datos en la misma empresa
+		// Si cambian code o name, validar que no exista otro con esos datos en la misma empresa (solo registros no eliminados)
         boolean codeChanged = request.getCode() != null && !request.getCode().equals(current.getCode());
 		boolean nameChanged = request.getName() != null && !request.getName().equals(current.getName());
 		boolean enterpriseChanged = request.getIdEnterprise() != null && !request.getIdEnterprise().equals(current.getIdEnterprise());
@@ -70,13 +70,13 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		String targetEnterprise = enterpriseChanged ? request.getIdEnterprise() : current.getIdEnterprise();
 
         if (codeChanged || enterpriseChanged) {
-            boolean existsCode = repository.existsByCodeAndIdEnterprise(request.getCode(), targetEnterprise);
+            boolean existsCode = repository.existsByCodeAndIdEnterpriseAndIsDeletedFalse(request.getCode(), targetEnterprise);
 			if (existsCode) {
 				throw new CostCentersAlreadyExistsException(request.getCode(), targetEnterprise);
 			}
 		}
 		if (nameChanged || enterpriseChanged) {
-			boolean existsName = repository.existsByNameAndIdEnterpriseAndIdNot(request.getName(), targetEnterprise, current.getId());
+			boolean existsName = repository.existsByNameAndIdEnterpriseAndIdNotAndIsDeletedFalse(request.getName(), targetEnterprise, current.getId());
 			if (existsName) {
 				throw new CostCentersAlreadyExistsException(request.getName(), targetEnterprise, true);
 			}
@@ -86,7 +86,7 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		current.setCode(request.getCode());
 		current.setName(request.getName());
 		if (request.getParentId() != null) {
-			CostCenterEntity parent = repository.findByIdAndIdEnterprise(request.getParentId(), targetEnterprise)
+			CostCenterEntity parent = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getParentId(), targetEnterprise)
 					.orElseThrow(CostCentersNotFoundException::new);
 			current.setParent(parent);
 		} else {
@@ -99,21 +99,41 @@ public class CostCenterServiceImpl implements ICostCenterService {
     @Transactional(readOnly = true)
     public Page<CostCenter> findAllByEnterprise(String idEnterprise, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
-		return repository.findAllByIdEnterprise(idEnterprise, pageable)
+		return repository.findAllByIdEnterpriseAndIsDeletedFalse(idEnterprise, pageable)
+				.map(dataMapper::toDomain);
+	}
+
+    @Transactional(readOnly = true)
+    public Page<CostCenter> findAllByEnterpriseAndStatus(String idEnterprise, Boolean status, int page, int size) {
+		Pageable pageable = PageRequest.of(page, size);
+		return repository.findAllByIdEnterpriseAndStatusAndIsDeletedFalse(idEnterprise, status, pageable)
 				.map(dataMapper::toDomain);
 	}
 
     @Transactional(readOnly = true)
     public CostCenter findById(Long id, String idEnterprise) {
-		return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)
+		return dataMapper.toDomain(repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
 				.orElseThrow(CostCentersNotFoundException::new));
 	}
 
 	@Transactional
-	public void delete(Long id, String idEnterprise) {
-		CostCenterEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise)
+	public CostCenter changeState(Long id, String idEnterprise, Boolean newState) {
+		CostCenterEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
 				.orElseThrow(CostCentersNotFoundException::new);
-		repository.delete(entity);
+
+		current.setStatus(newState);
+		CostCenterEntity saved = repository.save(current);
+		return dataMapper.toDomain(saved);
+	}
+
+	@Transactional
+	public CostCenter softDelete(Long id, String idEnterprise) {
+		CostCenterEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
+				.orElseThrow(CostCentersNotFoundException::new);
+
+		current.setIsDeleted(true);
+		CostCenterEntity saved = repository.save(current);
+		return dataMapper.toDomain(saved);
 	}
 
 	private String standardizeName(String input) {

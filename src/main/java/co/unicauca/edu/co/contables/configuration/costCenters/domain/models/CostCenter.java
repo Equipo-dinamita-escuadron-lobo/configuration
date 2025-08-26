@@ -16,6 +16,10 @@ public class CostCenter {
     private String name;
     private CostCenter parent;
     private List<CostCenter> children;
+    @Builder.Default
+    private Boolean status = true;
+    @Builder.Default
+    private Boolean isDeleted = false;
 }
 
 

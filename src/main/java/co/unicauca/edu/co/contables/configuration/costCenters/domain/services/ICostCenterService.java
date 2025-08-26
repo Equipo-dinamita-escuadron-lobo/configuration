@@ -13,8 +13,12 @@ public interface ICostCenterService {
 
 	Page<CostCenter> findAllByEnterprise(String idEnterprise, int page, int size);
 
+	Page<CostCenter> findAllByEnterpriseAndStatus(String idEnterprise, Boolean status, int page, int size);
+
 	CostCenter findById(Long id, String idEnterprise);
 
-	void delete(Long id, String idEnterprise);
+	CostCenter changeState(Long id, String idEnterprise, Boolean newState);
+
+	CostCenter softDelete(Long id, String idEnterprise);
 }
 

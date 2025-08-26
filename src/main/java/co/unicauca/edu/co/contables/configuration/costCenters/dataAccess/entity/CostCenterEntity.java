@@ -47,6 +47,14 @@ public class CostCenterEntity {
         @Column(name = "id_enterprise", nullable = false)
         private String idEnterprise;
 
+        @Builder.Default
+        @Column(name = "status", nullable = false)
+        private Boolean status = true;
+
+        @Builder.Default
+        @Column(name = "is_deleted", nullable = false)
+        private Boolean isDeleted = false;
+
         @TenantId
         @Column(name = "tenant_id")
         private String tenantId;

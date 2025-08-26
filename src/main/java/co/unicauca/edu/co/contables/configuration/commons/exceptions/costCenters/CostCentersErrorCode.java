@@ -11,7 +11,6 @@ public enum CostCentersErrorCode implements ErrorCodeDefinition {
 
     COST_CENTER_NOT_FOUND("COST_CENTER_NOT_FOUND", "Centro de costo no encontrado"),
     COST_CENTER_ALREADY_EXISTS("COST_CENTER_ALREADY_EXISTS", "Centro de costo ya existe");
-    //TODO: Agregar los demás códigos de error
 
     private final String code;
     private final String message;

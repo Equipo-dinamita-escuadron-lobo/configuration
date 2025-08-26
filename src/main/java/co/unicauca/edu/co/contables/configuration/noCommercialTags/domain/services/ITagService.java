@@ -8,7 +8,7 @@ import co.unicauca.edu.co.contables.configuration.noCommercialTags.domain.models
 public interface ITagService {
     Tag create(Tag tag);
     Tag update(Long idTag,Tag tag);
-    Optional<Tag> getTag(Long idTag);
-    List<Tag> getAllTag();
+    Optional<Tag> getTag(Long idTag, String enterpriseId);
+    List<Tag> getAllTag(String enterpriseId);
     boolean delete(Long idTag);
 }

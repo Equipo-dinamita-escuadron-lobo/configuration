@@ -32,13 +32,13 @@ public class TagServiceImpl implements ITagService {
     }
 
     @Override
-    public Optional<Tag> getTag(Long idTag) {
-        return tagRepository.findById(idTag).map(tagEntityMapper::toDomain);
+    public Optional<Tag> getTag(Long idTag,  String enterpriseId) {
+        return tagRepository.findByIdAndEnterpriseId(idTag, enterpriseId).map(tagEntityMapper::toDomain);
     }
 
     @Override
-    public List<Tag> getAllTag() {
-        return tagEntityMapper.listToDomain(tagRepository.findAll());
+    public List<Tag> getAllTag(String enterpriseId) {
+        return tagEntityMapper.listToDomain(tagRepository.findByEnterpriseId(enterpriseId));
     }
 
     @Override

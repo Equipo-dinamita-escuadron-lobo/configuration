@@ -47,8 +47,11 @@ public class DocumentClassController {
     }   
 
     @GetMapping("/findAllActive/{enterpriseId}")
-    public ResponseEntity<?> listActive(@PathVariable("enterpriseId") String enterpriseId) {
-        return ResponseEntity.ok(service.findAllByEnterpriseAndStatus(enterpriseId, true, 0, 1000)
+    public ResponseEntity<?> listActive(
+            @PathVariable("enterpriseId") String enterpriseId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "50") Integer size) {
+        return ResponseEntity.ok(service.findAllByEnterpriseAndStatus(enterpriseId, true, page, size)
                 .map(mapper::toRes));
     }
 

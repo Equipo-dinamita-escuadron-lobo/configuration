@@ -47,17 +47,17 @@ public class TagRestController {
         return objResponse;
     }
 
-    @GetMapping("/tag/{idTag}")
-    public ResponseEntity<TagDTOResponse> getTag(@PathVariable Long idTag) {
+    @GetMapping("/enterprise/{enterpriseId}/tag/{idTag}")
+    public ResponseEntity<TagDTOResponse> getTag(@PathVariable String enterpriseId,@PathVariable Long idTag) {
         
-         return tagService.getTag(idTag)
+         return tagService.getTag(idTag,enterpriseId)
         .map(tag -> ResponseEntity.ok(tagDomainMapper.toResponse(tag)))
         .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/tags")
-    public ResponseEntity<List<TagDTOResponse>> getAllTags() {
-        List<Tag> tags = tagService.getAllTag();
+    @GetMapping("/tags/{enterpriseId}")
+    public ResponseEntity<List<TagDTOResponse>> getAllTags(@PathVariable String enterpriseId) {
+        List<Tag> tags = tagService.getAllTag(enterpriseId);
         List<TagDTOResponse> responseList = tags.stream()
         .map(tagDomainMapper::toResponse)
         .toList();

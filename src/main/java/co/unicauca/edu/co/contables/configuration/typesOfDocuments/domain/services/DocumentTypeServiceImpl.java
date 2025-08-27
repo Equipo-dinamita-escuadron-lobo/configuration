@@ -3,6 +3,7 @@ package co.unicauca.edu.co.contables.configuration.typesOfDocuments.domain.servi
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.dataAccess.entity.DocumentClassEntity;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.dataAccess.repository.DocumentClassRepository;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesNotFoundException;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassInactiveException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentTypes.DocumentTypesAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentTypes.DocumentTypesNotFoundException;
 import co.unicauca.edu.co.contables.configuration.commons.utils.StringStandardizationUtils;
@@ -64,9 +65,14 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
             throw new DocumentTypesAlreadyExistsException("nombre", standardizedName, request.getIdEnterprise());
         }
 
-        // Validar que la clase exista y esté activa
-        DocumentClassEntity docClass = documentClassRepository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getDocumentClassId(), request.getIdEnterprise())
-                .orElseThrow(DocumentClassesNotFoundException::new);
+        // Validar que la clase exista, esté activa y no eliminada
+        DocumentClassEntity docClass = documentClassRepository.findByIdAndIdEnterpriseAndStatusAndIsDeletedFalse(request.getDocumentClassId(), request.getIdEnterprise(), true)
+                .orElseGet(() -> {
+                    // Verificar si existe pero está inactiva
+                    DocumentClassEntity inactiveClass = documentClassRepository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getDocumentClassId(), request.getIdEnterprise())
+                            .orElseThrow(DocumentClassesNotFoundException::new);
+                    throw new DocumentClassInactiveException(inactiveClass.getName());
+                });
 
         DocumentType domain = domainMapper.toDomain(request);
         domain.setName(standardizedName);
@@ -110,9 +116,14 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
             }
         }
 
-        // Validar clase de documento activa
-        DocumentClassEntity docClass = documentClassRepository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getDocumentClassId(), targetEnterprise)
-                .orElseThrow(DocumentClassesNotFoundException::new);
+        // Validar que la clase exista, esté activa y no eliminada
+        DocumentClassEntity docClass = documentClassRepository.findByIdAndIdEnterpriseAndStatusAndIsDeletedFalse(request.getDocumentClassId(), targetEnterprise, true)
+                .orElseGet(() -> {
+                    // Verificar si existe pero está inactiva
+                    DocumentClassEntity inactiveClass = documentClassRepository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getDocumentClassId(), targetEnterprise)
+                            .orElseThrow(DocumentClassesNotFoundException::new);
+                    throw new DocumentClassInactiveException(inactiveClass.getName());
+                });
 
         current.setIdEnterprise(targetEnterprise);
         current.setPrefix(standardizedPrefix);

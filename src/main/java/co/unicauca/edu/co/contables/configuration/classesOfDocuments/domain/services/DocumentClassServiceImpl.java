@@ -81,6 +81,11 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
         return repository.findAllByIdEnterpriseAndIsDeletedFalse(idEnterprise, pageable).map(dataMapper::toDomain);
     }
 
+    public Page<DocumentClass> findAllByEnterpriseAndStatus(String idEnterprise, Boolean status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAllByIdEnterpriseAndStatusAndIsDeletedFalse(idEnterprise, status, pageable).map(dataMapper::toDomain);
+    }
+
     @Transactional
     public DocumentClass changeState(Long id, String idEnterprise, Boolean status) {
         DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)

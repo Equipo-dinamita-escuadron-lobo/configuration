@@ -46,6 +46,12 @@ public class DocumentClassController {
                 .map(mapper::toRes));
     }   
 
+    @GetMapping("/findAllActive/{enterpriseId}")
+    public ResponseEntity<?> listActive(@PathVariable("enterpriseId") String enterpriseId) {
+        return ResponseEntity.ok(service.findAllByEnterpriseAndStatus(enterpriseId, true, 0, 1000)
+                .map(mapper::toRes));
+    }
+
     @PatchMapping("/changeState/{id}/{enterpriseId}")
     public ResponseEntity<DocumentClassRes> changeState(
             @PathVariable Long id,

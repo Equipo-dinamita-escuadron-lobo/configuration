@@ -5,6 +5,7 @@ import co.unicauca.edu.co.contables.configuration.classesOfDocuments.dataAccess.
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesNotFoundException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentTypes.DocumentTypesAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentTypes.DocumentTypesNotFoundException;
+import co.unicauca.edu.co.contables.configuration.commons.utils.StringStandardizationUtils;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.dataAccess.entity.DocumentTypeEntity;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.dataAccess.mapper.DocumentTypeDataMapper;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.dataAccess.repository.DocumentTypeRepository;
@@ -52,8 +53,8 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         }
 
         // Estandarización de nombre y prefijo
-        String standardizedName = standardizeName(request.getName());
-        String standardizedPrefix = standardizePrefix(request.getPrefix());
+        String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
+        String standardizedPrefix = StringStandardizationUtils.standardizePrefix(request.getPrefix());
 
         // Unicidad por empresa: prefijo y nombre (solo registros no eliminados)
         if (repository.existsByPrefixAndIdEnterpriseAndIsDeletedFalse(standardizedPrefix, request.getIdEnterprise())) {
@@ -70,7 +71,7 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         DocumentType domain = domainMapper.toDomain(request);
         domain.setName(standardizedName);
         domain.setPrefix(standardizedPrefix);
-        domain.setModule(standardizeName(request.getModule()));
+        domain.setModule(StringStandardizationUtils.standardizeName(request.getModule()));
         DocumentTypeEntity toSave = dataMapper.toEntity(domain);
         toSave.setDocumentClass(docClass);
 
@@ -89,8 +90,8 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
                 .orElseThrow(DocumentTypesNotFoundException::new);
 
         String targetEnterprise = request.getIdEnterprise() != null ? request.getIdEnterprise() : current.getIdEnterprise();
-        String standardizedName = standardizeName(request.getName());
-        String standardizedPrefix = standardizePrefix(request.getPrefix());
+        String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
+        String standardizedPrefix = StringStandardizationUtils.standardizePrefix(request.getPrefix());
 
         boolean prefixChanged = standardizedPrefix != null && !standardizedPrefix.equals(current.getPrefix());
         boolean nameChanged = standardizedName != null && !standardizedName.equals(current.getName());
@@ -117,7 +118,7 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         current.setPrefix(standardizedPrefix);
         current.setName(standardizedName);
         current.setDocumentClass(docClass);
-        current.setModule(standardizeName(request.getModule()));
+        current.setModule(StringStandardizationUtils.standardizeName(request.getModule()));
 
         DocumentTypeEntity saved = repository.save(current);
         return dataMapper.toDomain(saved);
@@ -142,7 +143,7 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         }
         
         // Estandarizar el módulo para la búsqueda
-        String standardizedModule = standardizeName(module);
+        String standardizedModule = StringStandardizationUtils.standardizeName(module);
         
         Pageable pageable = PageRequest.of(page, size);
         return repository.findAllByModuleAndIdEnterpriseAndIsDeletedFalse(standardizedModule, idEnterprise, pageable)
@@ -167,18 +168,6 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         current.setIsDeleted(true);
         DocumentTypeEntity saved = repository.save(current);
         return dataMapper.toDomain(saved);
-    }
-
-    private String standardizeName(String input) {
-        if (input == null) return null;
-        String s = input.trim().replaceAll("\\s+", " ").toLowerCase(new Locale("es", "ES"));
-        if (s.isEmpty()) return s;
-        return s.substring(0, 1).toUpperCase(new Locale("es", "ES")) + s.substring(1);
-    }
-
-    private String standardizePrefix(String input) {
-        if (input == null) return null;
-        return input.trim().toUpperCase(Locale.ROOT);
     }
 
     /**

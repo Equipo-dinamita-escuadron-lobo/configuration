@@ -1,7 +1,5 @@
 package co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.services;
 
-import java.util.Locale;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
@@ -18,6 +16,7 @@ import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentatio
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesNotFoundException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassInUseException;
+import co.unicauca.edu.co.contables.configuration.commons.utils.StringStandardizationUtils;
 import co.unicauca.edu.co.contables.configuration.typesOfDocuments.dataAccess.repository.DocumentTypeRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +31,7 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
 
     @Transactional
     public DocumentClass create(DocumentClassCreateReq request) {
-        String standardizedName = standardizeName(request.getName());
+        String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
 
         // Validar unicidad del nombre por empresa (solo registros no eliminados)
         if (repository.existsByNameAndIdEnterpriseAndIsDeletedFalse(standardizedName, request.getIdEnterprise())) {
@@ -51,7 +50,7 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
 
         String targetEnterprise = request.getIdEnterprise() != null ? request.getIdEnterprise() : current.getIdEnterprise();
 
-        String standardizedName = standardizeName(request.getName());
+        String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
 
         boolean nameChanged = standardizedName != null && !standardizedName.equals(current.getName());
         boolean enterpriseChanged = targetEnterprise != null && !targetEnterprise.equals(current.getIdEnterprise());
@@ -107,12 +106,6 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
         return dataMapper.toDomain(saved);
     }
 
-    private String standardizeName(String rawName) {
-        if (rawName == null) return null;
-        String s = rawName.trim().replaceAll("\\s+", " ").toLowerCase(new Locale("es", "ES"));
-        if (s.isEmpty()) return s;
-        return s.substring(0, 1).toUpperCase(new Locale("es", "ES")) + s.substring(1);
-    }
 }
 
 

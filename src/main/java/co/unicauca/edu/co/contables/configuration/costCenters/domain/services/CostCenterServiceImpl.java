@@ -3,6 +3,7 @@ package co.unicauca.edu.co.contables.configuration.costCenters.domain.services;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCentersAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCentersNotFoundException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.costCenters.CostCenterHasChildrenException;
+import co.unicauca.edu.co.contables.configuration.commons.utils.StringStandardizationUtils;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.entity.CostCenterEntity;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.mapper.CostCenterDataMapper;
 import co.unicauca.edu.co.contables.configuration.costCenters.dataAccess.repository.CostCenterRepository;
@@ -18,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class CostCenterServiceImpl implements ICostCenterService {
 			throw new CostCentersAlreadyExistsException(request.getCode(), request.getIdEnterprise());
 		}
 		// Estandarizar nombre: primera letra mayúscula, resto minúsculas, colapsar espacios
-		String standardizedName = standardizeName(request.getName());
+		String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
 		request.setName(standardizedName);
 
 		// Validación de nombre exacto (tras estandarización, solo registros no eliminados)
@@ -61,7 +61,7 @@ public class CostCenterServiceImpl implements ICostCenterService {
 				.orElseThrow(CostCentersNotFoundException::new);
 
 		// Estandarizar nombre antes de validar
-		String standardizedName = standardizeName(request.getName());
+		String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
 		request.setName(standardizedName);
 
 		// Si cambian code o name, validar que no exista otro con esos datos en la misma empresa (solo registros no eliminados)
@@ -168,12 +168,6 @@ public class CostCenterServiceImpl implements ICostCenterService {
 		}
 	}
 
-	private String standardizeName(String input) {
-		if (input == null) return null;
-		String s = input.trim().replaceAll("\\s+", " ").toLowerCase(new Locale("es", "ES"));
-		if (s.isEmpty()) return s;
-		return s.substring(0, 1).toUpperCase(new Locale("es", "ES")) + s.substring(1);
-	}
 }
 
 

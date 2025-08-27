@@ -14,6 +14,10 @@ public class DocumentType {
     private Long documentClassId;
     private String module;
     private String idEnterprise;
+    @Builder.Default
+    private Boolean status = true;
+    @Builder.Default
+    private Boolean isDeleted = false;
 }
 
 

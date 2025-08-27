@@ -55,9 +55,20 @@ public class DocumentTypeController {
                 .map(mapper::toRes));
     }
 
+    @PatchMapping("/changeState/{id}/{enterpriseId}")
+    public ResponseEntity<DocumentTypeRes> changeState(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId,
+            @RequestParam Boolean status) {
+        DocumentType updated = service.changeState(id, enterpriseId, status);
+        return ResponseEntity.ok(mapper.toRes(updated));
+    }
+
     @DeleteMapping("/delete/{id}/{enterpriseId}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
-        service.delete(id, enterpriseId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<DocumentTypeRes> softDelete(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId) {
+        DocumentType deleted = service.softDelete(id, enterpriseId);
+        return ResponseEntity.ok(mapper.toRes(deleted));
     }
 }

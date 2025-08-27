@@ -15,8 +15,6 @@ public interface DocumentClassRepository extends JpaRepository<DocumentClassEnti
 
     Page<DocumentClassEntity> findAllByIdEnterpriseAndIsDeletedFalse(String idEnterprise, Pageable pageable);
 
-    Page<DocumentClassEntity> findAllByIdEnterpriseAndStatusAndIsDeletedFalse(String idEnterprise, Boolean status, Pageable pageable);
-
     Optional<DocumentClassEntity> findByIdAndIdEnterpriseAndIsDeletedFalse(Long id, String idEnterprise);
 }
 

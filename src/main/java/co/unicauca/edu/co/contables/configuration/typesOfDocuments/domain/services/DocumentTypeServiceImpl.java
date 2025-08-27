@@ -55,16 +55,16 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         String standardizedName = standardizeName(request.getName());
         String standardizedPrefix = standardizePrefix(request.getPrefix());
 
-        // Unicidad por empresa: prefijo y nombre
-        if (repository.existsByPrefixAndIdEnterprise(standardizedPrefix, request.getIdEnterprise())) {
+        // Unicidad por empresa: prefijo y nombre (solo registros no eliminados)
+        if (repository.existsByPrefixAndIdEnterpriseAndIsDeletedFalse(standardizedPrefix, request.getIdEnterprise())) {
             throw new DocumentTypesAlreadyExistsException("prefijo", standardizedPrefix, request.getIdEnterprise());
         }
-        if (repository.existsByNameAndIdEnterprise(standardizedName, request.getIdEnterprise())) {
+        if (repository.existsByNameAndIdEnterpriseAndIsDeletedFalse(standardizedName, request.getIdEnterprise())) {
             throw new DocumentTypesAlreadyExistsException("nombre", standardizedName, request.getIdEnterprise());
         }
 
-        // Validar que la clase exista
-        DocumentClassEntity docClass = documentClassRepository.findById(request.getDocumentClassId())
+        // Validar que la clase exista y esté activa
+        DocumentClassEntity docClass = documentClassRepository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getDocumentClassId(), request.getIdEnterprise())
                 .orElseThrow(DocumentClassesNotFoundException::new);
 
         DocumentType domain = domainMapper.toDomain(request);
@@ -85,7 +85,7 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
             throw new IllegalArgumentException("Módulo inválido");
         }
 
-        DocumentTypeEntity current = repository.findById(request.getId())
+        DocumentTypeEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getId(), request.getIdEnterprise())
                 .orElseThrow(DocumentTypesNotFoundException::new);
 
         String targetEnterprise = request.getIdEnterprise() != null ? request.getIdEnterprise() : current.getIdEnterprise();
@@ -96,19 +96,21 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         boolean nameChanged = standardizedName != null && !standardizedName.equals(current.getName());
         boolean enterpriseChanged = targetEnterprise != null && !targetEnterprise.equals(current.getIdEnterprise());
 
+        // Validar unicidad del prefijo si cambió (solo entre registros no eliminados)
         if (prefixChanged || enterpriseChanged) {
-            if (repository.existsByPrefixAndIdEnterpriseAndIdNot(standardizedPrefix, targetEnterprise, current.getId())) {
+            if (repository.existsByPrefixAndIdEnterpriseAndIdNotAndIsDeletedFalse(standardizedPrefix, targetEnterprise, current.getId())) {
                 throw new DocumentTypesAlreadyExistsException("prefijo", standardizedPrefix, targetEnterprise);
             }
         }
+        // Validar unicidad del nombre si cambió (solo entre registros no eliminados)
         if (nameChanged || enterpriseChanged) {
-            if (repository.existsByNameAndIdEnterpriseAndIdNot(standardizedName, targetEnterprise, current.getId())) {
+            if (repository.existsByNameAndIdEnterpriseAndIdNotAndIsDeletedFalse(standardizedName, targetEnterprise, current.getId())) {
                 throw new DocumentTypesAlreadyExistsException("nombre", standardizedName, targetEnterprise);
             }
         }
 
-        // Validar clase de documento
-        DocumentClassEntity docClass = documentClassRepository.findById(request.getDocumentClassId())
+        // Validar clase de documento activa
+        DocumentClassEntity docClass = documentClassRepository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getDocumentClassId(), targetEnterprise)
                 .orElseThrow(DocumentClassesNotFoundException::new);
 
         current.setIdEnterprise(targetEnterprise);
@@ -123,13 +125,13 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
 
     @Transactional(readOnly = true)
     public DocumentType findById(Long id, String idEnterprise) {
-        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentTypesNotFoundException::new));
+        return dataMapper.toDomain(repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise).orElseThrow(DocumentTypesNotFoundException::new));
     }
 
     @Transactional(readOnly = true)
     public Page<DocumentType> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);
+        return repository.findAllByIdEnterpriseAndIsDeletedFalse(idEnterprise, pageable).map(dataMapper::toDomain);
     }
 
     @Transactional(readOnly = true)
@@ -143,14 +145,28 @@ public class DocumentTypeServiceImpl implements IDocumentTypeService {
         String standardizedModule = standardizeName(module);
         
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByModuleAndIdEnterprise(standardizedModule, idEnterprise, pageable)
+        return repository.findAllByModuleAndIdEnterpriseAndIsDeletedFalse(standardizedModule, idEnterprise, pageable)
                 .map(dataMapper::toDomain);
     }
 
     @Transactional
-    public void delete(Long id, String idEnterprise) {
-        DocumentTypeEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentTypesNotFoundException::new);
-        repository.delete(entity);
+    public DocumentType changeState(Long id, String idEnterprise, Boolean status) {
+        DocumentTypeEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
+                .orElseThrow(DocumentTypesNotFoundException::new);
+
+        current.setStatus(status);
+        DocumentTypeEntity saved = repository.save(current);
+        return dataMapper.toDomain(saved);
+    }
+
+    @Transactional
+    public DocumentType softDelete(Long id, String idEnterprise) {
+        DocumentTypeEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
+                .orElseThrow(DocumentTypesNotFoundException::new);
+
+        current.setIsDeleted(true);
+        DocumentTypeEntity saved = repository.save(current);
+        return dataMapper.toDomain(saved);
     }
 
     private String standardizeName(String input) {

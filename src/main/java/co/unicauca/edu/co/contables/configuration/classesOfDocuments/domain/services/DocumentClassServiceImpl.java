@@ -17,6 +17,8 @@ import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentatio
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.DTO.request.DocumentClassUpdateReq;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesNotFoundException;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassInUseException;
+import co.unicauca.edu.co.contables.configuration.typesOfDocuments.dataAccess.repository.DocumentTypeRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,6 +28,7 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
     private final DocumentClassRepository repository;
     private final DocumentClassDataMapper dataMapper;
     private final DocumentClassDomainMapper domainMapper;
+    private final DocumentTypeRepository documentTypeRepository;
 
     @Transactional
     public DocumentClass create(DocumentClassCreateReq request) {
@@ -93,6 +96,11 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
     public DocumentClass softDelete(Long id, String idEnterprise) {
         DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
                 .orElseThrow(DocumentClassesNotFoundException::new);
+
+        // Validar que la clase de documento no esté siendo utilizada por tipos de documentos activos
+        if (documentTypeRepository.existsByDocumentClassIdAndIsDeletedFalse(id)) {
+            throw new DocumentClassInUseException(current.getName());
+        }
 
         current.setIsDeleted(true);
         DocumentClassEntity saved = repository.save(current);

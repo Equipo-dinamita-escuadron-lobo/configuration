@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Tag {
     private Long id;
+    private String enterpriseId;
     private String title;
     private String description;
     

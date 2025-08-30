@@ -13,6 +13,8 @@ public class DocumentClassRes {
     private Long id;
     private String name;
     private String idEnterprise;
+    private Boolean status;
+    private Boolean isDeleted;
 }
 
 

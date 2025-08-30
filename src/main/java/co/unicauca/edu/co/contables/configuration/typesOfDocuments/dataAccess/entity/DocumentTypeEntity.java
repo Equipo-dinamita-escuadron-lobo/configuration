@@ -8,10 +8,6 @@ import org.hibernate.annotations.TenantId;
 @Entity
 @Table(
     name = "types_of_documents",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"prefix", "id_enterprise"}),
-        @UniqueConstraint(columnNames = {"name", "id_enterprise"})
-    },
     indexes = {
         @Index(name = "idx_doc_type_id_enterprise", columnList = "id_enterprise"),
         @Index(name = "idx_doc_type_prefix", columnList = "prefix"),
@@ -45,6 +41,14 @@ public class DocumentTypeEntity {
 
     @Column(name = "id_enterprise", nullable = false)
     private String idEnterprise;
+
+    @Builder.Default
+    @Column(name = "status", nullable = false)
+    private Boolean status = true;
+
+    @Builder.Default
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
     @TenantId
     @Column(name = "tenant_id")

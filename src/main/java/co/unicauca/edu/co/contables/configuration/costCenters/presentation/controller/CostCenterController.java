@@ -49,13 +49,31 @@ public class CostCenterController {
         return ResponseEntity.ok(mapped);
     }
 
-    @DeleteMapping("/delete/{id}/{enterpriseId}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
-        service.delete(id, enterpriseId);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/findAllByStatus/{enterpriseId}")
+    public ResponseEntity<Page<CostCenterRes>> listByStatus(
+            @PathVariable String enterpriseId,
+            @RequestParam Boolean status,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        Page<CostCenter> pageResult = service.findAllByEnterpriseAndStatus(enterpriseId, status, page, size);
+        Page<CostCenterRes> mapped = pageResult.map(mapper::toRes);
+        return ResponseEntity.ok(mapped);
     }
 
-    
+    @PatchMapping("/changeState/{id}/{enterpriseId}")
+    public ResponseEntity<CostCenterRes> changeState(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId,
+            @RequestParam Boolean status) {
+        CostCenter updated = service.changeState(id, enterpriseId, status);
+        return ResponseEntity.ok(mapper.toRes(updated));
+    }
+
+    @DeleteMapping("/delete/{id}/{enterpriseId}")
+    public ResponseEntity<CostCenterRes> softDelete(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId) {
+        CostCenter deleted = service.softDelete(id, enterpriseId);
+        return ResponseEntity.ok(mapper.toRes(deleted));
+    }
 }
-
-

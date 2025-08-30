@@ -2,7 +2,6 @@ package co.unicauca.edu.co.contables.configuration.costCenters.presentation.DTO.
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.AssertTrue;
 import lombok.*;
 
@@ -23,7 +22,6 @@ public class CostCenterUpdateReq {
     private String code;
 
     @NotBlank(message = "El nombre es obligatorio")
-    @Pattern(regexp = "^[\\p{L}\\s]+$", message = "El nombre solo puede contener letras")
     private String name;
 
     private Long parentId; // opcional

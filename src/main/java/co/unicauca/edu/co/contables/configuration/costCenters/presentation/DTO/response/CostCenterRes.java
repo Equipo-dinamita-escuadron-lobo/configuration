@@ -13,6 +13,7 @@ public class CostCenterRes {
     private String code;
     private String name;
     private Long parentId;
+    private Boolean status;
 }
 
 

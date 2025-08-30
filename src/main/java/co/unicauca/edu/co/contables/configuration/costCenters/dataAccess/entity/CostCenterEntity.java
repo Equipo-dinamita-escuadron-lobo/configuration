@@ -9,10 +9,6 @@ import java.util.List;
 @Entity
 @Table(
     name = "cost_centers",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "code", "id_enterprise" }),
-        @UniqueConstraint(columnNames = { "name", "id_enterprise" })
-    },
     indexes = {
         @Index(name = "idx_cost_center_id_enterprise", columnList = "id_enterprise"),
         @Index(name = "idx_cost_center_code", columnList = "code"),
@@ -46,6 +42,14 @@ public class CostCenterEntity {
         // Id de empresa obligatorio
         @Column(name = "id_enterprise", nullable = false)
         private String idEnterprise;
+
+        @Builder.Default
+        @Column(name = "status", nullable = false)
+        private Boolean status = true;
+
+        @Builder.Default
+        @Column(name = "is_deleted", nullable = false)
+        private Boolean isDeleted = false;
 
         @TenantId
         @Column(name = "tenant_id")

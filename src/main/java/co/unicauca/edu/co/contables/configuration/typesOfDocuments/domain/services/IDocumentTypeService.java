@@ -15,8 +15,12 @@ public interface IDocumentTypeService {
 	DocumentType findById(Long id, String idEnterprise);
 
 	Page<DocumentType> findAllByEnterprise(String idEnterprise, int page, int size);
+
+	Page<DocumentType> findAllByEnterprise(String idEnterprise, int page, int size, String sortField, String sortOrder);
 	
 	Page<DocumentType> findAllByModuleAndEnterprise(String module, String idEnterprise, int page, int size);
 
-	void delete(Long id, String idEnterprise);
+	DocumentType changeState(Long id, String idEnterprise, Boolean status);
+
+	DocumentType softDelete(Long id, String idEnterprise);
 }

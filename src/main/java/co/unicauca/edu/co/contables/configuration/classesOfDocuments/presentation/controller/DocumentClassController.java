@@ -41,15 +41,37 @@ public class DocumentClassController {
     public ResponseEntity<?> list(
             @PathVariable("enterpriseId") String enterpriseId,
             @RequestParam(defaultValue = "0") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
-        return ResponseEntity.ok(service.findAllByEnterprise(enterpriseId, page, size)
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "name") String sortField,
+            @RequestParam(defaultValue = "asc") String sortOrder) {
+        return ResponseEntity.ok(service.findAllByEnterprise(enterpriseId, page, size, sortField, sortOrder)
+                .map(mapper::toRes));
+    }   
+
+    @GetMapping("/findAllActive/{enterpriseId}")
+    public ResponseEntity<?> listActive(
+            @PathVariable("enterpriseId") String enterpriseId,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "50") Integer size) {
+        return ResponseEntity.ok(service.findAllByEnterpriseAndStatus(enterpriseId, true, page, size)
                 .map(mapper::toRes));
     }
 
+    @PatchMapping("/changeState/{id}/{enterpriseId}")
+    public ResponseEntity<DocumentClassRes> changeState(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId,
+            @RequestParam Boolean status) {
+        DocumentClass updated = service.changeState(id, enterpriseId, status);
+        return ResponseEntity.ok(mapper.toRes(updated));
+    }
+
     @DeleteMapping("/delete/{id}/{enterpriseId}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable String enterpriseId) {
-        service.delete(id, enterpriseId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<DocumentClassRes> softDelete(
+            @PathVariable Long id,
+            @PathVariable String enterpriseId) {
+        DocumentClass deleted = service.softDelete(id, enterpriseId);
+        return ResponseEntity.ok(mapper.toRes(deleted));
     }
 }
 

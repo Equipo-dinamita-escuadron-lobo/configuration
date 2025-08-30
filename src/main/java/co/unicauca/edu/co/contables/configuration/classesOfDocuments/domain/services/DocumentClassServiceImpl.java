@@ -1,12 +1,11 @@
 package co.unicauca.edu.co.contables.configuration.classesOfDocuments.domain.services;
 
-import java.util.Locale;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.dataAccess.entity.DocumentClassEntity;
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.dataAccess.mapper.DocumentClassDataMapper;
@@ -17,6 +16,9 @@ import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentatio
 import co.unicauca.edu.co.contables.configuration.classesOfDocuments.presentation.DTO.request.DocumentClassUpdateReq;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesAlreadyExistsException;
 import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassesNotFoundException;
+import co.unicauca.edu.co.contables.configuration.commons.exceptions.documentClasses.DocumentClassInUseException;
+import co.unicauca.edu.co.contables.configuration.commons.utils.StringStandardizationUtils;
+import co.unicauca.edu.co.contables.configuration.typesOfDocuments.dataAccess.repository.DocumentTypeRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,12 +28,14 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
     private final DocumentClassRepository repository;
     private final DocumentClassDataMapper dataMapper;
     private final DocumentClassDomainMapper domainMapper;
+    private final DocumentTypeRepository documentTypeRepository;
 
     @Transactional
     public DocumentClass create(DocumentClassCreateReq request) {
-        String standardizedName = standardizeName(request.getName());
+        String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
 
-        if (repository.existsByNameAndIdEnterprise(standardizedName, request.getIdEnterprise())) {
+        // Validar unicidad del nombre por empresa (solo registros no eliminados)
+        if (repository.existsByNameAndIdEnterpriseAndIsDeletedFalse(standardizedName, request.getIdEnterprise())) {
             throw new DocumentClassesAlreadyExistsException(standardizedName, request.getIdEnterprise());
         }
         DocumentClass domain = domainMapper.toDomain(request);
@@ -42,18 +46,19 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
 
     @Transactional
     public DocumentClass update(DocumentClassUpdateReq request) {
-        DocumentClassEntity current = repository.findById(request.getId())
+        DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(request.getId(), request.getIdEnterprise())
                 .orElseThrow(DocumentClassesNotFoundException::new);
 
         String targetEnterprise = request.getIdEnterprise() != null ? request.getIdEnterprise() : current.getIdEnterprise();
 
-        String standardizedName = standardizeName(request.getName());
+        String standardizedName = StringStandardizationUtils.standardizeName(request.getName());
 
         boolean nameChanged = standardizedName != null && !standardizedName.equals(current.getName());
         boolean enterpriseChanged = targetEnterprise != null && !targetEnterprise.equals(current.getIdEnterprise());
 
+        // Validar unicidad del nombre si cambió (solo entre registros no eliminados)
         if (nameChanged || enterpriseChanged) {
-            if (repository.existsByNameAndIdEnterpriseAndIdNot(standardizedName, targetEnterprise, current.getId())) {
+            if (repository.existsByNameAndIdEnterpriseAndIdNotAndIsDeletedFalse(standardizedName, targetEnterprise, current.getId())) {
                 throw new DocumentClassesAlreadyExistsException(standardizedName, targetEnterprise);
             }
         }
@@ -67,28 +72,55 @@ public class DocumentClassServiceImpl implements IDocumentClassService {
 
     @Transactional(readOnly = true)
     public DocumentClass findById(Long id, String idEnterprise) {
-        return dataMapper.toDomain(repository.findByIdAndIdEnterprise(id, idEnterprise)
+        return dataMapper.toDomain(repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
                 .orElseThrow(DocumentClassesNotFoundException::new));
     }
 
     @Transactional(readOnly = true)
     public Page<DocumentClass> findAllByEnterprise(String idEnterprise, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findAllByIdEnterprise(idEnterprise, pageable).map(dataMapper::toDomain);
+        return repository.findAllByIdEnterpriseAndIsDeletedFalse(idEnterprise, pageable).map(dataMapper::toDomain);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DocumentClass> findAllByEnterprise(String idEnterprise, int page, int size, String sortField, String sortOrder) {
+        Sort sort = "desc".equalsIgnoreCase(sortOrder) ? 
+            Sort.by(sortField).descending() : 
+            Sort.by(sortField).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return repository.findAllByIdEnterpriseAndIsDeletedFalse(idEnterprise, pageable).map(dataMapper::toDomain);
+    }
+
+    public Page<DocumentClass> findAllByEnterpriseAndStatus(String idEnterprise, Boolean status, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findAllByIdEnterpriseAndStatusAndIsDeletedFalse(idEnterprise, status, pageable).map(dataMapper::toDomain);
     }
 
     @Transactional
-    public void delete(Long id, String idEnterprise) {
-        DocumentClassEntity entity = repository.findByIdAndIdEnterprise(id, idEnterprise).orElseThrow(DocumentClassesNotFoundException::new);
-        repository.delete(entity);
+    public DocumentClass changeState(Long id, String idEnterprise, Boolean status) {
+        DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
+                .orElseThrow(DocumentClassesNotFoundException::new);
+
+        current.setStatus(status);
+        DocumentClassEntity saved = repository.save(current);
+        return dataMapper.toDomain(saved);
     }
 
-    private String standardizeName(String rawName) {
-        if (rawName == null) return null;
-        String s = rawName.trim().replaceAll("\\s+", " ").toLowerCase(new Locale("es", "ES"));
-        if (s.isEmpty()) return s;
-        return s.substring(0, 1).toUpperCase(new Locale("es", "ES")) + s.substring(1);
+    @Transactional
+    public DocumentClass softDelete(Long id, String idEnterprise) {
+        DocumentClassEntity current = repository.findByIdAndIdEnterpriseAndIsDeletedFalse(id, idEnterprise)
+                .orElseThrow(DocumentClassesNotFoundException::new);
+
+        // Validar que la clase de documento no esté siendo utilizada por tipos de documentos activos
+        if (documentTypeRepository.existsByDocumentClassIdAndIsDeletedFalse(id)) {
+            throw new DocumentClassInUseException(current.getName());
+        }
+
+        current.setIsDeleted(true);
+        DocumentClassEntity saved = repository.save(current);
+        return dataMapper.toDomain(saved);
     }
+
 }
 
 
